@@ -7,9 +7,16 @@ class BaseScene extends Phaser.Scene {
 		this.id = id;
 		this.level = level;
 		console.log(id + " is loaded.");
-		this.Matter = Phaser.Physics.Matter.Matter;
-		this.map;
-		this.mainLayer;
+		if (this.level) {
+			this.actors = [];
+			this.props = [];
+			this.projectiles = [];
+			this.miscobjects = [];
+			this.Matter = Phaser.Physics.Matter.Matter;
+			this.map;
+			this.mainLayer;
+			this.navMesh;
+		}
 
 	}
 
@@ -32,13 +39,21 @@ class BaseScene extends Phaser.Scene {
 
 		if (this.level) {
 
+			//get the tilemap.
 			this.map = this.make.tilemap({ key: 'curLevel' });
 			this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
 
-			//Change this bit later.
+			//Change this bit later; build the level
 			var walls = this.map.addTilesetImage('Wall', 'wall');
 			this.mainLayer = this.map.createStaticLayer('Walls', walls, 0, 0);
 			this.mainLayer.setCollision([0]);
+
+			//Build the Navmesh.
+			var mesh = this.map.getObjectLayer("navMesh");
+			this.navMesh = this.navMeshPlugin.buildMeshFromTiled("nav", mesh, 16);
+
+			//spawn objects.
+			this.map.filterObjects("Objectlayer", initObject);
 
 		}
 		
@@ -50,6 +65,10 @@ class BaseScene extends Phaser.Scene {
 	}
 
 };
+
+function initObject(object) {
+
+}
 
 class startScene extends BaseScene {
 
@@ -103,4 +122,4 @@ class btTargets extends BaseScene {
 		console.log(this.mainLayer);
 	}
 
-}
+}0
