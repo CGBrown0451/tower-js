@@ -46,7 +46,9 @@ class BaseScene extends Phaser.Scene {
 			//Change this bit later; build the level
 			var walls = this.map.addTilesetImage('Wall', 'wall');
 			this.mainLayer = this.map.createStaticLayer('Walls', walls, 0, 0);
-			this.mainLayer.setCollision([0]);
+			console.log(this.mainLayer);
+			this.mainLayer.setCollisionByProperty({ collides: true });
+			this.matter.world.convertTilemapLayer(this.mainLayer);
 
 			//Build the Navmesh.
 			var mesh = this.map.getObjectLayer("navMesh");

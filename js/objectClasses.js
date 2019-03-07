@@ -108,19 +108,37 @@ class Actor {
 
 	moveAlongPath(delta) {
 
-
-
 		var nextpoint = this.path[0];
-		var dir = pointtopoint(this.position, nextpoint, true);
-		var dist = delta * this.speed;
+		var dist = pointtopoint(this.position, nextpoint, false);
+		var dir = new Phaser.Math.Vector2(dist);
+		dir.normalize();
+		dist = new Phaser.Math.Vector2(dist);
+		if (dist.length() < this.speed) {
 
-		this.sprite.x += dir.x * dist;
-		this.sprite.y += dir.y * dist;
+			this.path.shift();
+			if (this.path.length > 0) {
+
+				nextpoint = this.path[0];
+
+			} else {
+
+				this.pathing = false;
+				this.sprite.setVelocity(0, 0);
+				return;
+
+			}
+			
+
+		}
+
+		var go = dir.multiply(new Phaser.Math.Vector2(this.speed, this.speed));
+		this.sprite.setVelocity(go.x, go.y);
+		
 
 	}
 
 	update(delta) {
-		delta /= 1000;
+		delta = delta / 1000;
 		this.position = new Phaser.Geom.Point(this.sprite.x, this.sprite.y);
 		this.controller.update();
 		switch (this.stateid) {
@@ -291,9 +309,9 @@ class Player extends Actor {
 
 	}
 
-	update() {
+	update(delta) {
 
-		super.update();
+		super.update(delta);
 		
 		
 

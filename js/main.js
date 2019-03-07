@@ -4,6 +4,7 @@
 //DAY 1: Imported required libraries. Made the game scaleable to the screen, with some difficulty. Started making the architecture.
 //DAY 2: Making the Architecture. Lots of work done in js/objectClasses.js. Fleshed architecture out. Made a navmesh for the level. Started ZingTouch stuff
 //DAY 3: Continued ZingTouch stuff in the touch controller. Now starting to integrate pathfinding and following (the following being the hard part!)
+//DAY 4: Pathing and collision implemented, with relative difficulty.
 var div = document.getElementById("game");
 
 var config = {
