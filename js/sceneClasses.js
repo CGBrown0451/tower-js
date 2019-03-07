@@ -53,20 +53,63 @@ class BaseScene extends Phaser.Scene {
 			this.navMesh = this.navMeshPlugin.buildMeshFromTiled("nav", mesh, 16);
 
 			//spawn objects.
-			this.map.filterObjects("Objectlayer", initObject);
+			var obj = initObject.bind(this);
+			this.map.filterObjects("Objects", obj);
+
+
+			//TODO: Make Mobile Device browsers fullscreen.
+			document.body.requestFullscreen();
 
 		}
 		
 
 	}
 
-	update(time, delta) {
+	update(delta) {
 		delta /= 1000;
+
+		if (this.level) {
+			var i = 0;
+			for (i in this.actors) {
+
+				this.actors[i].update(delta);
+
+			}
+		}
+
 	}
 
 };
 
 function initObject(object) {
+
+	if (object.name == "Spawn") {
+
+		switch (object.properties.type) {
+
+			case "Player":
+				{
+					this.actors.push(new Player(this.actors.length, this, object.x, object.y, object.rotation, 5, 100, "gun"));
+				}
+				break;
+
+		}
+
+	} else if (object.name == "Object") {
+
+		switch (object.properties.type) {
+
+			case "Target":
+				{
+
+
+
+				}
+				break;
+
+		}
+
+	}
 
 }
 
@@ -119,7 +162,7 @@ class btTargets extends BaseScene {
 		//MainGame loop
 		super.update();
 		this.cameras.main.setBackgroundColor('#FFFFFF');
-		console.log(this.mainLayer);
+		
 	}
 
-}0
+}
