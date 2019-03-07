@@ -52,10 +52,13 @@ class Actor {
 
 		this.id = id;
 		this.scene = scene;
-		this.sprite = this.scene.Matter.add.image(x, y, sprite);
+		this.position;
+		this.sprite = this.scene.matter.add.image(x, y, sprite);
 		this.sprite.rotation = rotation;
 		this.controller = controller;
+		this.controller.parent = this;
 		this.speed = speed;
+		this.maxhp = hp;
 		this.hp = hp;
 		this.weapon = weapon;
 		this.path = [];
@@ -68,46 +71,65 @@ class Actor {
 
 	}
 
-	moveTo(x,y) {
+	moveTo(point) {
+		//Asks navmesh.js nicely to find a path. Starts navigating if it does.
+		var path = this.scene.navMesh.findPath({ x: this.sprite.x, y: this.sprite.y }, point);
+		if (path != null) {
+			console.log("path found");
+			this.pathing = true;
+			this.path = path;
+		} else {
 
-		this.path = this.scene.navMesh.findPath({ x: this.sprite.x, y: this.sprite.y }, { x: x, y: y });
-		this.pathing = true;
+			console.log("path not found");
 
-	}
-
-	dodgeInDirection(rads) {
-
-	}
-
-	shootAt(x,y) {
-
-	}
-
-	moveInDirection(rads, relspeed) {
+		}
 
 	}
 
-	lookAt(x,y) {
+	dodgeInDirection(degs) {
 
 	}
 
-	moveAlongPath() {
+	shootAt(point) {
+
+		console.log("pew");
+
+	}
+
+	moveInDirection(degs, relspeed) {
+
+	}
+
+	lookAt(point) {
+
+		var dir = pointtopoint(this.position, point, true);
+
+	}
+
+	moveAlongPath(delta) {
 
 
+
+		var nextpoint = this.path[0];
+		var dir = pointtopoint(this.position, nextpoint, true);
+		var dist = delta * this.speed;
+
+		this.sprite.x += dir.x * dist;
+		this.sprite.y += dir.y * dist;
 
 	}
 
 	update(delta) {
 		delta /= 1000;
-		
-
+		this.position = new Phaser.Geom.Point(this.sprite.x, this.sprite.y);
+		this.controller.update();
 		switch (this.stateid) {
 
 			case 0:
 				{
 
 					if (this.pathing) {
-						this.moveAlongPath();
+						this.moveAlongPath(delta);
 					}
 
 				}
@@ -136,7 +158,7 @@ class Prop{
 
 		this.id = id;
 		this.scene = scene;
-		this.sprite = this.scene.Matter.add.image(x, y, sprite);
+		this.sprite = this.scene.matter.add.image(x, y, sprite);
 		this.sprite.rotation = rotation;
 		this.maxhp = hp;
 		this.hp = this.maxhp;
@@ -174,9 +196,53 @@ class TouchController {
 
 		this.presslength = presslength;
 		this.swipesens = swipesens;
+		this.parent;
+		this.stRegister = false;
+		this.ltRegister = false;
+		this.touchProperties;
+		//Initialising ZingTouch
+		this.zt = ZingTouch.Region(game.context.canvas);
+		
+		var sTouch = new ZingTouch.Tap({
+			maxDelay: 1000,
+			numInputs: 1,
+			tolerance: 100
+		});
 
+		var st = this.singleTouch.bind(this);
+		this.zt.bind(game.context.canvas, sTouch, st);
+		console.log(game.context.canvas);
+		
 
 	}
+
+	update(delta) {
+
+		this.parent.scene.cameras.main.centerOn(this.parent.sprite.x, this.parent.sprite.y);
+
+	}
+
+	singleTouch(e) {
+
+		var point = screenSpacetoWorldSpace(this.parent.scene, e.detail.events[0].pageX, e.detail.events[0].pageY);
+
+		if (e.detail.interval < this.presslength) {
+			
+			this.parent.shootAt(point);
+
+		} else {
+
+			this.parent.moveTo(point);
+
+		}
+
+	}
+
+	swipe(e) {
+
+	}
+
+
 
 }
 
@@ -220,17 +286,25 @@ class Player extends Actor {
 
 	constructor(id, scene, x, y, rotation, speed, hp, weapon) {
 
-		super(id, scene, "player", x, y, rotation, new TouchController(0.15,0.1), speed, hp, weapon);
+		super(id, scene, "player", x, y, rotation, new TouchController(150, 0.1), speed, hp, weapon);
+		
 
 	}
 
 	update() {
 
 		super.update();
-		this.scene.cameras.main.centerOn(this.sprite.x, this.sprite.y);
+		
+		
 
 	}
 
 }
 
 //======================Prop Extensions======================
+
+class Target extends Prop {
+
+
+
+}
