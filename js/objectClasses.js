@@ -63,6 +63,10 @@ class Actor {
 		this.weapon = weapon;
 		this.path = [];
 		this.pathing = false;
+		this.aiming = false;
+		this.focuspoint;
+		this.aimtime = 3;
+		this.aimtimer = 0;
 		this.stateid = 0;
 
 	}
@@ -92,17 +96,24 @@ class Actor {
 
 	shootAt(point) {
 
-		console.log("pew");
+		this.lookAt(point);
 
 	}
 
 	moveInDirection(degs, relspeed) {
+
+
 
 	}
 
 	lookAt(point) {
 
 		var dir = pointtopoint(this.position, point, true);
+		this.sprite.rotation = Phaser.Math.Angle.Between(0, 0, dir.x, dir.y);
+
+		this.focuspoint = point;
+		this.aiming = true;
+		this.aimtimer = 0;
 
 	}
 
@@ -116,6 +127,8 @@ class Actor {
 		if (dist.length() < this.speed) {
 
 			this.path.shift();
+			this.sprite.x = nextpoint.x;
+			this.sprite.y = nextpoint.y;
 			if (this.path.length > 0) {
 
 				nextpoint = this.path[0];
@@ -133,21 +146,41 @@ class Actor {
 
 		var go = dir.multiply(new Phaser.Math.Vector2(this.speed, this.speed));
 		this.sprite.setVelocity(go.x, go.y);
-		
 
 	}
 
 	update(delta) {
-		delta = delta / 1000;
 		this.position = new Phaser.Geom.Point(this.sprite.x, this.sprite.y);
 		this.controller.update();
 		switch (this.stateid) {
 
 			case 0:
 				{
+					if (this.scene.delta != NaN) {
+						this.aimtimer = this.aimtimer + this.scene.delta;
+					}
+					
+					if (this.aimtimer > this.aimtime) {
+
+						this.aiming = false;
+						
+					}
 
 					if (this.pathing) {
 						this.moveAlongPath(delta);
+
+						if (!this.aiming) {
+							if (this.sprite.body.speed > 0) {
+								this.sprite.rotation = Phaser.Math.Angle.Between(0, 0, this.sprite.body.velocity.x, this.sprite.body.velocity.y);
+							}
+						} else {
+
+							var dir = pointtopoint(this.position, this.focuspoint, true);
+							this.sprite.rotation = Phaser.Math.Angle.Between(0, 0, dir.x, dir.y);
+
+							
+
+						}
 					}
 
 				}
@@ -201,8 +234,12 @@ class Projectile{
 		this.sprite = this.scene.Matter.add.image(x, y, sprite);
 		this.sprite.rotation = rotation;
 		this.data = projectileData;
+		this.sprite.body.setBounce(1);
+		this.sprite.setVelocity(angleToVector(true, rotation).scale(this.projectileData.speed));
 
 	}
+
+
 
 }
 
@@ -229,6 +266,14 @@ class TouchController {
 
 		var st = this.singleTouch.bind(this);
 		this.zt.bind(game.context.canvas, sTouch, st);
+
+		var sSwipe = new ZingTouch.Swipe({
+			escapeVelocity: 0.5
+		});
+
+		var ss = this.swipe.bind(this);
+		this.zt.bind(game.context.canvas, sSwipe, ss);
+
 		console.log(game.context.canvas);
 		
 
@@ -247,10 +292,12 @@ class TouchController {
 		if (e.detail.interval < this.presslength) {
 			
 			this.parent.shootAt(point);
+			window.navigator.vibrate([50,20,10]);
 
 		} else {
 
 			this.parent.moveTo(point);
+			window.navigator.vibrate(50);
 
 		}
 
@@ -258,9 +305,10 @@ class TouchController {
 
 	swipe(e) {
 
+		this.parent.dodgeInDirection(e.detail.currentDirection);
+		window.navigator.vibrate([50, 10, 20, 10, 10, 5, 5, 5, 5, 5, 5]);
+
 	}
-
-
 
 }
 
@@ -269,12 +317,13 @@ class TouchController {
 //A class for storing weapon data.
 class Weapon {
 
-	constructor(id, name, firespeed, auto, projectileCount, projectileData) {
+	constructor(id, name, firespeed, auto, inacc, projectileCount, projectileData) {
 
 		this.id = id;
 		this.name = name;
 		this.firespeed = firespeed;
 		this.auto = auto;
+		this.inaccuracy = inacc
 		this.projectileCount = projectileCount;
 		this.projectileData = projectileData;
 

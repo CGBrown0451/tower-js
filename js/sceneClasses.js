@@ -16,6 +16,8 @@ class BaseScene extends Phaser.Scene {
 			this.map;
 			this.mainLayer;
 			this.navMesh;
+			this.delta;
+			this.uptime;
 		}
 
 	}
@@ -25,6 +27,7 @@ class BaseScene extends Phaser.Scene {
 		this.load.image('player', 'sprites/Player.png');
 		this.load.image('target', 'sprites/Target.png');
 		this.load.image('button', 'sprites/button.png');
+		this.load.image('bullet', 'sprites/bullet.png');
 		this.load.spritesheet('wall', 'sprites/Wall.png', { frameWidth: 32, frameHeight: 32 });
 
 		if (this.level) {
@@ -60,21 +63,22 @@ class BaseScene extends Phaser.Scene {
 
 
 			//TODO: Make Mobile Device browsers fullscreen.
-			document.body.requestFullscreen();
+			
 
 		}
 		
 
 	}
 
-	update(delta) {
-		delta /= 1000;
-
+	update() {
 		if (this.level) {
 			var i = 0;
+			this.delta = this.time.now - this.uptime;
+			this.uptime = this.time.now;
+			this.delta /= 1000;
 			for (i in this.actors) {
 
-				this.actors[i].update(delta);
+				this.actors[i].update();
 
 			}
 		}
