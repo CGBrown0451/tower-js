@@ -92,11 +92,22 @@ class Actor {
 
 	dodgeInDirection(degs) {
 
+
+
 	}
 
 	shootAt(point) {
 
 		this.lookAt(point);
+
+		var angle = angleToVector(false, this.sprite.rotation);
+		angle.scale(this.sprite.width / 2);
+
+		console.log(this.sprite.rotation);
+
+		var position = new Phaser.Math.Vector2(angle.x + this.sprite.x, angle.y + this.sprite.y);
+
+		this.scene.projectiles.push(new Projectile(this.scene.projectiles.length, this.scene, 'bullet', position.x, position.y, this.sprite.rotation, PROJ_PISTOLBULLET));
 
 	}
 
@@ -231,11 +242,16 @@ class Projectile{
 
 		this.id = id;
 		this.scene = scene;
-		this.sprite = this.scene.Matter.add.image(x, y, sprite);
-		this.sprite.rotation = rotation;
+		this.sprite = this.scene.matter.add.image(x, y, sprite);
 		this.data = projectileData;
-		this.sprite.body.setBounce(1);
-		this.sprite.setVelocity(angleToVector(true, rotation).scale(this.projectileData.speed));
+		this.sprite.rotation = rotation;
+		this.sprite.setBounce(1);
+		var vel = angleToVector(false, this.sprite.rotation).scale(this.data.speed);
+		this.sprite.setVelocity(vel.x, vel.y);
+
+	}
+
+	update() {
 
 	}
 
@@ -274,7 +290,7 @@ class TouchController {
 		var ss = this.swipe.bind(this);
 		this.zt.bind(game.context.canvas, sSwipe, ss);
 
-		console.log(game.context.canvas);
+		
 		
 
 	}
@@ -288,7 +304,7 @@ class TouchController {
 	singleTouch(e) {
 
 		var point = screenSpacetoWorldSpace(this.parent.scene, e.detail.events[0].pageX, e.detail.events[0].pageY);
-
+		
 		if (e.detail.interval < this.presslength) {
 			
 			this.parent.shootAt(point);
@@ -323,7 +339,6 @@ class Weapon {
 		this.name = name;
 		this.firespeed = firespeed;
 		this.auto = auto;
-		this.inaccuracy = inacc
 		this.projectileCount = projectileCount;
 		this.projectileData = projectileData;
 
@@ -334,13 +349,14 @@ class Weapon {
 //A class for storing projectile data.
 class projectileData {
 
-	constructor(speed,damage,type,bounces,drag) {
+	constructor(speed,damage,type,bounces,drag,inacc) {
 
 		this.speed = speed;
 		this.damage = damage;
 		this.damageType = type;
 		this.bounces = bounces;
 		this.drag = drag;
+		this.inaccuracy = inacc;
 
 	}
 

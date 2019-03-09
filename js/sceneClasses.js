@@ -72,15 +72,29 @@ class BaseScene extends Phaser.Scene {
 
 	update() {
 		if (this.level) {
-			var i = 0;
+			var i,j,k;
 			this.delta = this.time.now - this.uptime;
 			this.uptime = this.time.now;
 			this.delta /= 1000;
+
 			for (i in this.actors) {
 
 				this.actors[i].update();
 
 			}
+
+			for (j in this.projectiles) {
+
+				this.projectiles[j].update()
+
+			}
+
+			for (k in this.props) {
+
+				this.props[k].update()
+
+			}
+
 		}
 
 	}

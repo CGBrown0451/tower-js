@@ -1,8 +1,9 @@
 // JavaScript source code
-//DAY 1: Imported required libraries. Made the game scaleable to the screen, with some difficulty. Started making the architecture.
-//DAY 2: Making the Architecture. Lots of work done in js/objectClasses.js. Fleshed architecture out. Made a navmesh for the level. Started ZingTouch stuff
-//DAY 3: Continued ZingTouch stuff in the touch controller. Now starting to integrate pathfinding and following (the following being the hard part!)
-//DAY 4: Pathing and collision implemented, with relative difficulty. Experimented with vibration, adding it to the movement actions to add tactile feedback, tuned movement to be more like the GML version, made angleToVector
+//DAY 1 (Mon 1): Imported required libraries. Made the game scaleable to the screen, with some difficulty. Started making the architecture. Made some quick sprites.
+//DAY 2 (Tue 1): Making the Architecture. Lots of work done in js/objectClasses.js. Fleshed architecture out. Made a navmesh for the level. Started ZingTouch stuff
+//DAY 3 (Wed 1): Continued ZingTouch stuff in the touch controller. Now starting to integrate pathfinding and following (the following being the hard part!)
+//DAY 4 (Thu 1): Pathing and collision implemented, with relative difficulty. Experimented with vibration, adding it to the movement actions to add tactile feedback, tuned movement to be more like the GML version, made angleToVector
+//DAY 5 (Fri 1): Shooting is now implemented. Tried adding inaccuracy, and it broke. Made a bullet sprite.
 var div = document.getElementById("game");
 
 var config = {
@@ -83,5 +84,11 @@ function angleToVector(degs, rot) {
 	}
 
 	return new Phaser.Math.Vector2(Math.cos(rot), Math.sin(rot));
+
+}
+
+function randomRange(low, high) {
+
+	return Math.floor(Math.random() * (high - low) + low);
 
 }
