@@ -34,6 +34,9 @@ class BaseScene extends Phaser.Scene {
 
 			this.load.tilemapTiledJSON('curLevel', 'maps/' + this.id + ".json");
 
+			var col = collisions.bind(this);
+			this.matter.world.on('collisionstart', col);
+
 		}
 
 	}
@@ -101,6 +104,27 @@ class BaseScene extends Phaser.Scene {
 
 };
 
+function collisions(event, A, B) {
+	console.log("A collision has happened");
+	if (A.classType == 'proj') {
+
+		if (B.classType != undefined || B.classType != 'proj') {
+			this.projectiles[A.classId].DamageBody(B);
+		} else {
+			this.projectiles[A.classId].bounces += 1;
+		}
+
+	} else if (B.classType == 'proj') {
+
+		if (A.classType != undefined || A.classType != 'proj') {
+			this.projectiles[B.classId].DamageBody(A);
+		} else {
+			this.projectiles[B.classId].bounces += 1;
+		}
+	}
+
+}
+
 function initObject(object) {
 
 	if (object.name == "Spawn") {
@@ -122,7 +146,7 @@ function initObject(object) {
 			case "Target":
 				{
 
-
+					this.props.push(new Prop(this.props.length, this, object.x, object.y, object.rotation, PROP_TARGET));
 
 				}
 				break;
@@ -130,6 +154,7 @@ function initObject(object) {
 		}
 
 	}
+	console.log(this.props);
 
 }
 
