@@ -4,6 +4,8 @@
 //DAY 3 (Wed 1): Continued ZingTouch stuff in the touch controller. Now starting to integrate pathfinding and following (the following being the hard part!)
 //DAY 4 (Thu 1): Pathing and collision implemented, with relative difficulty. Experimented with vibration, adding it to the movement actions to add tactile feedback, tuned movement to be more like the GML version, made angleToVector
 //DAY 5 (Fri 1): Shooting is now implemented. Tried adding inaccuracy, and it broke. Made a bullet sprite.
+
+//DAY 6 (Mon 2): Planning on making the targets and collision detection with bullets.
 var div = document.getElementById("game");
 
 var config = {

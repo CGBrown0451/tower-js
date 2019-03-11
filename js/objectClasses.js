@@ -52,8 +52,11 @@ class Actor {
 
 		this.id = id;
 		this.scene = scene;
+		this.type = 'actor';
 		this.position;
 		this.sprite = this.scene.matter.add.image(x, y, sprite);
+		this.sprite.body.classType = this.type;
+		this.sprite.body.classId = this.id;
 		this.sprite.rotation = rotation;
 		this.controller = controller;
 		this.controller.parent = this;
@@ -174,6 +177,7 @@ class Actor {
 					if (this.aimtimer > this.aimtime) {
 
 						this.aiming = false;
+						this.aimtimer = 0;
 						
 					}
 
@@ -182,13 +186,16 @@ class Actor {
 
 						if (!this.aiming) {
 							if (this.sprite.body.speed > 0) {
-								this.sprite.rotation = Phaser.Math.Angle.Between(0, 0, this.sprite.body.velocity.x, this.sprite.body.velocity.y);
+								var angle = Phaser.Math.Angle.Between(0, 0, this.sprite.body.velocity.x, this.sprite.body.velocity.y);
+								this.sprite.rotation = angle;
+								console.log(this.sprite.rotation);
 							}
 						} else {
 
 							var dir = pointtopoint(this.position, this.focuspoint, true);
-							this.sprite.rotation = Phaser.Math.Angle.Between(0, 0, dir.x, dir.y);
-
+							var angle = Phaser.Math.Angle.Between(0, 0, dir.x, dir.y);
+							this.sprite.rotation = angle;
+							console.log(this.sprite.rotation);
 							
 
 						}
@@ -208,6 +215,15 @@ class Actor {
 	}
 
 	destroy() {
+		if (this.id < this.scene.actors.length) {
+			for (var i = this.id + 1; i != this.scene.actors.length; i++) {
+				this.scene.actors[i].id--;
+				this.scene.actors[i].sprite.body.classId--;
+
+			}
+		}
+		this.scene.actors.splice(this.id, 1);
+		this.sprite.destroy();
 
 	}
 
@@ -216,19 +232,49 @@ class Actor {
 //Props are chairs, tables, potted plants, or anything that generally doesn't interact with the player.
 class Prop{
 
-	constructor(id, scene, sprite, x, y, rotation, hp, weight) {
+	constructor(id, scene, x, y, rotation, data) {
 
 		this.id = id;
+		this.type = 'prop';
+		this.data = data;
 		this.scene = scene;
-		this.sprite = this.scene.matter.add.image(x, y, sprite);
+		this.sprite = this.scene.matter.add.image(x, y, this.data.sprite);
+		this.sprite.body.classType = this.type;
+		this.sprite.body.classId = this.id;
 		this.sprite.rotation = rotation;
-		this.maxhp = hp;
+		this.maxhp = this.data.hp;
 		this.hp = this.maxhp;
-		this.weight = weight;
+		this.sprite.setMass(this.data.mass);
+		if (this.data.immovable) {
+			this.sprite.setStatic(true);
+		}
+		
+		
 
 	}
 
 	destroy() {
+		console.log(this.id);
+		if (this.id < this.scene.props.length) {
+			for (var i = this.id + 1; i != this.scene.props.length; i++) {
+				console.log(i);
+				this.scene.props[i].id--;
+				this.scene.props[i].sprite.body.classId--;
+
+			}
+		}
+		this.scene.props.splice(this.id, 1);
+		this.sprite.destroy();
+
+	}
+
+	update() {
+
+		if (this.hp <= 0) {
+			console.log("Destroy prop" + this.id);
+			this.destroy();
+
+		}
 
 	}
 
@@ -241,20 +287,71 @@ class Projectile{
 	constructor(id, scene, sprite, x, y, rotation, projectileData) {
 
 		this.id = id;
+		this.type = 'proj';
 		this.scene = scene;
 		this.sprite = this.scene.matter.add.image(x, y, sprite);
+		this.sprite.body.classType = this.type;
+		this.sprite.body.classId = this.id;
 		this.data = projectileData;
+		this.bounces = 0;
 		this.sprite.rotation = rotation;
 		this.sprite.setBounce(1);
+		this.sprite.body.restitution = 1;
+		this.sprite.body.friction = 0;
+		this.sprite.body.frictionAir = 0;
 		var vel = angleToVector(false, this.sprite.rotation).scale(this.data.speed);
 		this.sprite.setVelocity(vel.x, vel.y);
-
+		console.log(this);
 	}
 
 	update() {
+		
+		if (this.sprite.body.speed < 1) {
+
+			this.destroy();
+
+		}
 
 	}
 
+
+	DamageBody(body) {
+
+		var object;
+
+		if (body.classType == 'actor') {
+
+			object = this.scene.actors[body.classId];
+
+		}
+
+		if (body.classType == 'prop') {
+
+			object = this.scene.props[body.classId];
+
+		}
+
+		if (object == undefined) {
+			return;
+		}
+
+		object.hp -= this.data.damage;
+		this.destroy();
+
+	}
+
+	destroy() {
+		if (this.id < this.scene.projectiles.length) {
+			for (var i = this.id + 1; i != this.scene.projectiles.length; i++) {
+				this.scene.projectiles[i].id--;
+				this.scene.projectiles[i].sprite.body.classId--;
+
+			}
+		}
+		this.scene.projectiles.splice(this.id, 1);
+		this.sprite.destroy();
+
+	}
 
 
 }
@@ -362,6 +459,19 @@ class projectileData {
 
 }
 
+class propData {
+
+	constructor(sprite, mass, hp, immovable) {
+
+		this.sprite = sprite;
+		this.mass = mass;
+		this.hp = hp;
+		this.immovable = immovable;
+
+	}
+
+}
+
 
 //======================Actor Extensions======================
 
@@ -377,8 +487,6 @@ class Player extends Actor {
 	update(delta) {
 
 		super.update(delta);
-		
-		
 
 	}
 
@@ -386,8 +494,3 @@ class Player extends Actor {
 
 //======================Prop Extensions======================
 
-class Target extends Prop {
-
-
-
-}
