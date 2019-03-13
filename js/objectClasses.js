@@ -33,7 +33,14 @@ function press() {
 			break;
 		case "changeScene":
 			this.scene.scene.start(this.param);
+			curScene = this.param;
 			found = true;
+			break;
+		case "sensUp":
+			downFrames--;
+			break;
+		case "sensDown":
+			downframes++;
 			break;
 			
 	}
@@ -106,7 +113,11 @@ class Actor {
 		var angle = angleToVector(false, this.sprite.rotation);
 		angle.scale(this.sprite.width / 2);
 
-		console.log(this.sprite.rotation);
+		if (!this.started) {
+
+			this.started = true;
+
+		}
 
 		var position = new Phaser.Math.Vector2(angle.x + this.sprite.x, angle.y + this.sprite.y);
 
@@ -188,17 +199,19 @@ class Actor {
 							if (this.sprite.body.speed > 0) {
 								var angle = Phaser.Math.Angle.Between(0, 0, this.sprite.body.velocity.x, this.sprite.body.velocity.y);
 								this.sprite.rotation = angle;
-								console.log(this.sprite.rotation);
 							}
 						} else {
 
 							var dir = pointtopoint(this.position, this.focuspoint, true);
 							var angle = Phaser.Math.Angle.Between(0, 0, dir.x, dir.y);
 							this.sprite.rotation = angle;
-							console.log(this.sprite.rotation);
-							
 
 						}
+					} else {
+
+						this.sprite.setVelocity(0, 0);
+						this.sprite.setAngularVelocity(0);
+
 					}
 
 				}
@@ -239,16 +252,19 @@ class Prop{
 		this.data = data;
 		this.scene = scene;
 		this.sprite = this.scene.matter.add.image(x, y, this.data.sprite);
+		if (this.data.circle) {
+			this.sprite.setCircle(this.sprite.width / 2);
+		}
 		this.sprite.body.classType = this.type;
 		this.sprite.body.classId = this.id;
 		this.sprite.rotation = rotation;
 		this.maxhp = this.data.hp;
 		this.hp = this.maxhp;
 		this.sprite.setMass(this.data.mass);
+
 		if (this.data.immovable) {
 			this.sprite.setStatic(true);
 		}
-		
 		
 
 	}
@@ -290,15 +306,15 @@ class Projectile{
 		this.type = 'proj';
 		this.scene = scene;
 		this.sprite = this.scene.matter.add.image(x, y, sprite);
+		this.sprite.setCircle(5);
 		this.sprite.body.classType = this.type;
 		this.sprite.body.classId = this.id;
 		this.data = projectileData;
 		this.bounces = 0;
 		this.sprite.rotation = rotation;
 		this.sprite.setBounce(1);
-		this.sprite.body.restitution = 1;
-		this.sprite.body.friction = 0;
-		this.sprite.body.frictionAir = 0;
+		this.sprite.body.restitution = 0.9;
+		this.sprite.body.frictionAir = 0.002;
 		var vel = angleToVector(false, this.sprite.rotation).scale(this.data.speed);
 		this.sprite.setVelocity(vel.x, vel.y);
 		console.log(this);
@@ -306,7 +322,7 @@ class Projectile{
 
 	update() {
 		
-		if (this.sprite.body.speed < 1) {
+		if (this.sprite.body.speed < 5) {
 
 			this.destroy();
 
@@ -461,12 +477,13 @@ class projectileData {
 
 class propData {
 
-	constructor(sprite, mass, hp, immovable) {
+	constructor(sprite, mass, hp, immovable, circle) {
 
 		this.sprite = sprite;
 		this.mass = mass;
 		this.hp = hp;
 		this.immovable = immovable;
+		this.circle = circle;
 
 	}
 
@@ -479,14 +496,37 @@ class Player extends Actor {
 
 	constructor(id, scene, x, y, rotation, speed, hp, weapon) {
 
-		super(id, scene, "player", x, y, rotation, new TouchController(150, 0.1), speed, hp, weapon);
-		
+		super(id, scene, "player", x, y, rotation, new TouchController((downFrames / 60) * 1000, 0.1), speed, hp, weapon);
+		this.sprite.setCircle(8);
+		this.start = new Phaser.Math.Vector2(x, y);
+		this.started = false;
 
 	}
 
 	update(delta) {
 
 		super.update(delta);
+
+		if (!this.started) {
+
+			if (Phaser.Math.Fuzzy.Equal(this.start.x, this.sprite.x, 5)) {
+
+				if (Phaser.Math.Fuzzy.Equal(this.start.y, this.sprite.y, 5)) {
+
+
+
+				} else {
+
+					this.started = true;
+
+				}
+
+			} else {
+
+				this.started = true;
+
+			}
+		}
 
 	}
 

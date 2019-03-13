@@ -5,7 +5,8 @@
 //DAY 4 (Thu 1): Pathing and collision implemented, with relative difficulty. Experimented with vibration, adding it to the movement actions to add tactile feedback, tuned movement to be more like the GML version, made angleToVector
 //DAY 5 (Fri 1): Shooting is now implemented. Tried adding inaccuracy, and it broke. Made a bullet sprite.
 
-//DAY 6 (Mon 2): Planning on making the targets and collision detection with bullets.
+//DAY 6 (Mon 2): Planning on making the targets and collision detection with bullets. Did that.
+//DAY 7 (Tue 2): Starting work on scripting the level and making HUD, Tweaked and increased collision functionality to make it less buggy, and more precise, level scripted, HUD needs looking into.
 var div = document.getElementById("game");
 
 var config = {
@@ -24,7 +25,7 @@ var config = {
 
 		default: 'matter',
 		matter: {
-			debug: true,
+			debug: false,
 			gravity: {
 				y: 0
 			}
@@ -38,11 +39,13 @@ var config = {
 		]
 	},
 
-	scene: [startScene, btTargets],
+	scene: [startScene, btTargets, HUD],
 	
 };
 
 var game = new Phaser.Game(config);
+var curScene;
+var downFrames = 10;
 //======================Universal Functions======================
 
 function screenSpacetoWorldSpace(scene, x, y) {
