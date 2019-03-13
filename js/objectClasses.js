@@ -49,6 +49,24 @@ function press() {
 	}
 }
 
+class Text {
+
+	constructor(scene, x, y, text, size, origin, color) {
+
+		this.scene = scene;
+		this.textobj = this.scene.add.text(x, y, text, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', fontSize: size.toString() + "px", color: color });
+		this.align = origin;
+		this.text = text;
+	}
+
+	update() {
+
+		this.textobj.setText(this.text);
+		this.textobj.setOrigin(this.align);
+
+	}
+
+}
 
 //======================GAME OBJECT CLASSES======================
 

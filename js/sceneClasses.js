@@ -12,6 +12,7 @@ class BaseScene extends Phaser.Scene {
 			this.props = [];
 			this.projectiles = [];
 			this.miscobjects = [];
+			this.HUD;
 			this.Matter = Phaser.Physics.Matter.Matter;
 			this.map;
 			this.mainLayer;
@@ -70,10 +71,12 @@ class BaseScene extends Phaser.Scene {
 
 
 			//TODO: Make Mobile Device browsers fullscreen.
-			
 
+
+			this.HUD = this.scene.scene.scene.get("UIScene");
 		}
 		this.starttime = this.time.now;
+		
 	}
 
 	update() {
@@ -165,7 +168,6 @@ function initObject(object) {
 		}
 
 	}
-	console.log(this.props);
 
 }
 
@@ -173,8 +175,8 @@ class HUD extends Phaser.Scene {
 
 	constructor() {
 
-		super({ key: 'UIScene', active: false });
-		this.scene;
+		super({ key: 'UIScene', active: true });
+		this.gamescene;
 		this.type;
 		this.elements = [];
 
@@ -182,16 +184,27 @@ class HUD extends Phaser.Scene {
 
 	initialise(type, scene) {
 
-		this.scene = scene;
-		this.active = true;
+		this.gamescene = this.scene.get(scene);
+		for (var i in this.elements) {
+
+			this.elements[i].textobj.destroy();
+
+		}
+
 		switch (type) {
 
 			case "timerOnly":
 				{
-					var text1 = "text";
-					this.elements = [text1];
-					break;
+					var text1 = new Text(this, 480, 20, "time", 20, 0.5, "#FFFFFF");
+					var text2 = new Text(this, 7, 7, "Left: 16", 15, 0, "#FFFFFF");
+					this.elements = [text1, text2];
 				}
+				break;
+			case "nothing":
+				{
+					this.elements = [];
+				}
+				break;
 
 		}
 		
@@ -199,7 +212,6 @@ class HUD extends Phaser.Scene {
 	}
 
 	update() {
-
 		for (var i in this.elements) {
 
 			this.elements[i].update();
@@ -240,10 +252,12 @@ class btTargets extends BaseScene {
 	constructor() {
 		super("btTargets", true);
 		this.gamestate = 0;
-		this.mybesttime = 28.36740000010468;
+		this.mybesttime = 28.067500000004657;
 		this.partime = 50;
-		this.platttime = 35;
+		this.plattime = 35;
 		this.gametime = 0;
+		this.endcardinit = false;
+		this.finaltime;
 	}
 
 	preload() {
@@ -256,6 +270,8 @@ class btTargets extends BaseScene {
 
 		super.create();
 		this.cameras.main.setBackgroundColor('#666666');
+		this.HUD.initialise("timerOnly", this);
+
 	}
 
 	update() {
@@ -264,38 +280,68 @@ class btTargets extends BaseScene {
 			case 0:
 				{
 					super.update();
+					this.gametime = (this.time.now - this.gotime) / 1000;
 					if (this.props.length == 0) {
 
-						this.gametime = (this.time.now - this.gotime) / 1000;
 						console.log(this.gametime);
 						this.gamestate = 1;
+						this.HUD.initialise("nothing", this);
+						this.finaltime = this.gametime.toFixed(3);
+						break;
 
 					}
+
+					var disptime;
+					if (!this.started) {
+						disptime = 0.000;
+					} else {
+						disptime = this.gametime;
+					}
+
+					this.HUD.elements[0].text = disptime.toFixed(3).toString();
+					this.HUD.elements[1].text = "Left: " + this.props.length;
 				}
 				break;
 			case 1:
 				{
-					console.log("COMPLETE!");
-					var achieve = false;
-					if (this.gametime < this.partime) {
 
-						if (this.gametime < this.platttime) {
-							achieve = true;
-							console.log("You beat platinum!");
-							
+					if (!this.endcardinit) {
+
+						var text1 = new Text(this.HUD, 480, 225, "Complete!", 50, 0.5, "#FFFFFF");
+						var text2 = new Text(this.HUD, 480, 270, "Time Taken: " + this.finaltime.toString() + " Seconds", 20, 0.5, "#FFFFFF");
+						this.HUD.elements.push(text1);
+						this.HUD.elements.push(text2);
+
+						var resulttext;
+
+						if (this.finaltime < this.partime) {
+
+							resulttext = "You beat Par Time!";
+							console.log("par");
+
 						}
 
-						if (this.gametime < this.mybesttime) {
+						if (this.finaltime < this.plattime) {
 
-							console.log("You beat me!");
+							resulttext = "You beat Platinum Time!";
+							console.log("par");
 
 						}
 
-						if (!achieve) {
-							console.log("You got Par!");
+						if (this.finaltime < this.mybesttime) {
+
+							resulttext = "You beat the creator's time!";
+							console.log("par");
+
 						}
+
+						var text3 = new Text(this.HUD, 480, 300, resulttext, 20, 0.5, "#FFFFFF");
+						this.HUD.elements.push(text3);
+
+						this.endcardinit = true;
 
 					}
+
 
 				}
 	}

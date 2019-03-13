@@ -7,6 +7,8 @@
 
 //DAY 6 (Mon 2): Planning on making the targets and collision detection with bullets. Did that.
 //DAY 7 (Tue 2): Starting work on scripting the level and making HUD, Tweaked and increased collision functionality to make it less buggy, and more precise, level scripted, HUD needs looking into.
+//DAY 8 (Wed 3): HUD works now. It displays your time in seconds and milliseconds when playing. Level scripting and flow is done.
+//DAY 9 (Thu 2): Fleshing out menus
 var div = document.getElementById("game");
 
 var config = {
@@ -44,6 +46,7 @@ var config = {
 };
 
 var game = new Phaser.Game(config);
+console.log(game);
 var curScene;
 var downFrames = 10;
 //======================Universal Functions======================
