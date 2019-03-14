@@ -73,13 +73,15 @@ class BaseScene extends Phaser.Scene {
 			//TODO: Make Mobile Device browsers fullscreen.
 
 
-			this.HUD = this.scene.scene.scene.get("UIScene");
+			
 		}
 		this.starttime = this.time.now;
+		this.HUD = this.scene.scene.scene.get("UIScene");
 		
 	}
 
 	update() {
+		downFrames = clamp(downFrames, 5, 30);
 		if (this.level) {
 			var i,j,k;
 			this.delta = this.time.now - this.uptime;
@@ -226,7 +228,8 @@ class startScene extends BaseScene {
 	constructor() {
 
 		super("startScene", false);
-		this.btn1;
+		this.welcometext = "Hello, and welcome to the TowerJS 0.1 Alpha Test!\nThis is a test that is mainly for touch and mobile devices,\nbut I encourage you to try using a mouse on a computer as well!\nThe controls are simple: press a location for a short amount of time to shoot there.\nPress there a long time to walk there.\nYou can adjust the threshold between the two actions. (The number is in Milliseconds)\nThere is an analytics system that requires cookies to work. It will only send your time on the\ncourse and your platform of choice. If you are not okay with that, press the analytics button.\nHave Fun!"
+
 
 	}
 
@@ -236,12 +239,29 @@ class startScene extends BaseScene {
 
 	create() {
 
-		this.btn1 = new Button('changeScene','btTargets',200,200,'button',this);
+		new Button('changeScene', 'btTargets', 100, 100, 'button', 'Start!', this);
+		new Button('sensUp', 0, 750, 100, 'button', 'Less', this);
+		new Button('sensDown', 0, 900, 100, 'button', 'More', this);
+		this.analytics = new Button('acceptSubmission', 0, 100, 480, 'button', 'Analytics', this);
+		this.sensitivity = new Text(this, 825, 100, downFrames, 20, 0.5, '#FFFFFF', 'center');
+		this.maintext = this.add.text(480, 270, this.welcometext, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
+		this.sens = this.add.text(825, 50, "Threshold", { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
+		this.maintext.setOrigin(0.5);
+		this.sens.setOrigin(0.5);
+		this.sensitivity.textobj.setOrigin(0.5);
 
 	}
 
 	update(time, delta) {
 		super.update();
+		console.log("update");
+		this.sensitivity.textobj.setText(Math.floor(downFrames / 60 * 1000).toString());
+		if (this.analytics.pressed) {
+
+			this.analytics.text.setText("No Analytics");
+
+		}
+		
 
 	}
 
@@ -251,18 +271,21 @@ class btTargets extends BaseScene {
 
 	constructor() {
 		super("btTargets", true);
-		this.gamestate = 0;
-		this.mybesttime = 28.067500000004657;
-		this.partime = 50;
-		this.plattime = 35;
-		this.gametime = 0;
-		this.endcardinit = false;
-		this.finaltime;
+		this.mybesttime = 27.922;
+		this.partime = 45;
+		this.plattime = 32.5;
+	
 	}
 
 	preload() {
 
 		super.preload();
+		this.gametime = 0;
+		this.endcardinit = false;
+		this.gamestate = 0;
+		this.finaltime;
+		this.endTime = 5;
+		this.endTimer = 0;
 
 	}
 
@@ -317,21 +340,21 @@ class btTargets extends BaseScene {
 						if (this.finaltime < this.partime) {
 
 							resulttext = "You beat Par Time!";
-							console.log("par");
+							
 
 						}
 
 						if (this.finaltime < this.plattime) {
 
 							resulttext = "You beat Platinum Time!";
-							console.log("par");
+							
 
 						}
 
 						if (this.finaltime < this.mybesttime) {
 
 							resulttext = "You beat the creator's time!";
-							console.log("par");
+							
 
 						}
 
@@ -339,6 +362,21 @@ class btTargets extends BaseScene {
 						this.HUD.elements.push(text3);
 
 						this.endcardinit = true;
+						document.exitFullscreen();
+
+					}
+
+					console.log(this.delta);
+
+					if (this.endTimer < this.endTime) {
+
+						this.endTimer += this.delta;
+
+					} else {
+
+						this.scene.scene.scene.start('endScene');
+						this.HUD.finaltime = this.finaltime;
+						time = this.finaltime;
 
 					}
 
@@ -346,6 +384,46 @@ class btTargets extends BaseScene {
 				}
 	}
 		
+	}
+
+}
+
+class endScene extends BaseScene {
+
+	constructor() {
+		super('endScene', false);
+		this.welcometext = "You completed the test level!\nThank you for testing my game!\nIf you want to help further, please do the short feedback questionnaire,\nor retry on this or other platforms!";
+	}
+
+	preload() {
+
+		super.preload();
+
+	}
+
+	create() {
+
+		super.create();
+		this.HUD.initialise("nothing", this);
+		this.maintext = this.add.text(480, 270, this.welcometext, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
+		this.maintext.setOrigin(0.5);
+		new Button('link', 'https://goo.gl/forms/310WOCv371YL7mNj2', 400, 490, 'button', 'Feedback', this);
+		new Button('restart', 'btTargets', 560, 490, 'button', 'Restart', this);
+
+		if (acceptedSub) {
+
+			gtag('event', 'btTargets', {
+				'event_category': 'complete',
+				'event_label': navigator.platform,
+				'value': time 
+			});
+			
+		}
+							
+	}
+							
+	update() {
+
 	}
 
 }

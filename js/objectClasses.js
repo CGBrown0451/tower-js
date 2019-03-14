@@ -3,7 +3,7 @@
 //======================FRINGE OBJECT CLASSES======================
 class Button{
 
-	constructor(action, param, x, y, sprite, scene) {
+	constructor(action, param, x, y, sprite, text, scene) {
 
 		this.action = action;
 		this.param = param;
@@ -11,6 +11,9 @@ class Button{
 		this.y = y;
 		this.scene = scene;
 		this.button = this.scene.add.sprite(x, y, sprite).setInteractive();
+		this.text = this.scene.add.text(x, y + 40, text, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
+		this.text.setOrigin(0.5);
+		this.pressed = false;
 
 		var func = press.bind(this);
 		this.button.on('pointerdown', func);
@@ -24,7 +27,8 @@ function press() {
 
 	//make a change scene_button.
 	var found = false;
-
+	window.navigator.vibrate(50);
+	this.pressed = true;
 	switch (this.action) {
 
 		case "log":
@@ -33,14 +37,29 @@ function press() {
 			break;
 		case "changeScene":
 			this.scene.scene.start(this.param);
+			game.context.canvas.requestFullscreen();
 			curScene = this.param;
+			found = true;
+			break;
+		case "restart":
+			location.reload();
 			found = true;
 			break;
 		case "sensUp":
 			downFrames--;
+			found = true;
 			break;
 		case "sensDown":
-			downframes++;
+			downFrames++;
+			found = true;
+			break;
+		case "acceptSubmission":
+			acceptedSub = false;
+			found = true;
+			break;
+		case 'link':
+			window.open(this.param);
+			found = true;
 			break;
 			
 	}
@@ -51,10 +70,10 @@ function press() {
 
 class Text {
 
-	constructor(scene, x, y, text, size, origin, color) {
+	constructor(scene, x, y, text, size, origin, color, align) {
 
 		this.scene = scene;
-		this.textobj = this.scene.add.text(x, y, text, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', fontSize: size.toString() + "px", color: color });
+		this.textobj = this.scene.add.text(x, y, text, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', fontSize: size.toString() + "px", color: color, align: align });
 		this.align = origin;
 		this.text = text;
 	}
@@ -453,7 +472,7 @@ class TouchController {
 	swipe(e) {
 
 		this.parent.dodgeInDirection(e.detail.currentDirection);
-		window.navigator.vibrate([50, 10, 20, 10, 10, 5, 5, 5, 5, 5, 5]);
+		//window.navigator.vibrate([50, 10, 20, 10, 10, 5, 5, 5, 5, 5, 5]);
 
 	}
 

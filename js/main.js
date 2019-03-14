@@ -8,7 +8,7 @@
 //DAY 6 (Mon 2): Planning on making the targets and collision detection with bullets. Did that.
 //DAY 7 (Tue 2): Starting work on scripting the level and making HUD, Tweaked and increased collision functionality to make it less buggy, and more precise, level scripted, HUD needs looking into.
 //DAY 8 (Wed 3): HUD works now. It displays your time in seconds and milliseconds when playing. Level scripting and flow is done.
-//DAY 9 (Thu 2): Fleshing out menus
+//DAY 9 (Thu 2): Menus Finished. Game should be finished now.
 var div = document.getElementById("game");
 
 var config = {
@@ -41,14 +41,17 @@ var config = {
 		]
 	},
 
-	scene: [startScene, btTargets, HUD],
+	scene: [startScene, btTargets, HUD, endScene],
 	
 };
 
 var game = new Phaser.Game(config);
 console.log(game);
 var curScene;
-var downFrames = 10;
+var downFrames = 15;
+var time;
+var acceptedSub = true;
+console.log(navigator);
 //======================Universal Functions======================
 
 function screenSpacetoWorldSpace(scene, x, y) {
@@ -98,5 +101,30 @@ function angleToVector(degs, rot) {
 function randomRange(low, high) {
 
 	return Math.floor(Math.random() * (high - low) + low);
+
+}
+
+function clamp(number, min, max) {
+
+	if (min > max) {
+
+		console.error("Min is more than Max!");
+		return NaN;
+
+	}
+
+	if (number > max) {
+
+		number = max;
+
+	}
+
+	if (number < min) {
+
+		number = min;
+
+	}
+
+	return number;
 
 }
