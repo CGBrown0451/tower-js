@@ -7,8 +7,9 @@
 
 //DAY 6 (Mon 2): Planning on making the targets and collision detection with bullets. Did that.
 //DAY 7 (Tue 2): Starting work on scripting the level and making HUD, Tweaked and increased collision functionality to make it less buggy, and more precise, level scripted, HUD needs looking into.
-//DAY 8 (Wed 3): HUD works now. It displays your time in seconds and milliseconds when playing. Level scripting and flow is done.
-//DAY 9 (Thu 2): Menus Finished. Game should be finished now.
+//DAY 8 (Wed 2): HUD works now. It displays your time in seconds and milliseconds when playing. Level scripting and flow is done.
+//DAY 9 (Thu 2): Menus Finished. Google Analytics Implemented. Game should be finished now.
+//DAY 10 (Fri 2): Small misc touch ups and bugfixes.
 var div = document.getElementById("game");
 
 var config = {
@@ -19,7 +20,6 @@ var config = {
 		/*parent: 'twr',*/
 		mode: Phaser.Scale.FIT,
 		autoCenter: Phaser.Scale.CENTER_BOTH,
-		zoom: Phaser.Scale.MAX_ZOOM,
 		width: 960,
 		height: 540
 	},

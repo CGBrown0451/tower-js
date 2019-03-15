@@ -37,7 +37,7 @@ function press() {
 			break;
 		case "changeScene":
 			this.scene.scene.start(this.param);
-			game.context.canvas.requestFullscreen();
+			game.scale.startFullscreen();
 			curScene = this.param;
 			found = true;
 			break;

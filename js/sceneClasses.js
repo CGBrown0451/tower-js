@@ -362,7 +362,7 @@ class btTargets extends BaseScene {
 						this.HUD.elements.push(text3);
 
 						this.endcardinit = true;
-						document.exitFullscreen();
+						game.scale.stopFullscreen();
 
 					}
 
@@ -417,6 +417,7 @@ class endScene extends BaseScene {
 				'event_label': navigator.platform,
 				'value': time 
 			});
+			console.log(time.toString() + " " + navigator.platform);
 			
 		}
 							
