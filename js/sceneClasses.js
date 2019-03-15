@@ -228,7 +228,7 @@ class startScene extends BaseScene {
 	constructor() {
 
 		super("startScene", false);
-		this.welcometext = "Hello, and welcome to the TowerJS 0.1 Alpha Test!\nThis is a test that is mainly for touch and mobile devices,\nbut I encourage you to try using a mouse on a computer as well!\nThe controls are simple: press a location for a short amount of time to shoot there.\nPress there a long time to walk there.\nYou can adjust the threshold between the two actions. (The number is in Milliseconds)\nThere is an analytics system that requires cookies to work. It will only send your time on the\ncourse and your platform of choice. If you are not okay with that, press the analytics button.\nHave Fun!"
+		this.welcometext = "Hello, and welcome to the TowerJS 0.1 Alpha Test!\nThis is a test that is mainly for touch and mobile devices,\nbut I encourage you to try using a mouse on a computer as well!\nThe Objective is to break all the targets in as little time possible.\nThe controls are simple: press a location for a short amount of time to shoot there.\nPress there a long time to walk there.\nYou can adjust the threshold between the two actions. (The number is in Milliseconds)\nThere is an analytics system in this game. It will only send your time on the\ncourse and your platform of choice. If you are not okay with that, press the analytics button.\nPar time is 40 Seconds, Platinum time is 32, and my best time is about 28.\nHave Fun!"
 
 
 	}
