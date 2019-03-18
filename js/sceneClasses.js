@@ -412,10 +412,9 @@ class endScene extends BaseScene {
 
 		if (acceptedSub) {
 
-			gtag('event', 'btTargets', {
-				'event_category': 'complete',
-				'event_label': navigator.platform,
-				'value': time 
+			gtag('event', 'complete', {
+				'event_category': navigator.platform,
+				'event_label': time.toString(),
 			});
 			console.log(time.toString() + " " + navigator.platform);
 			
