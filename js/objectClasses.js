@@ -92,7 +92,7 @@ class Text {
 //Actors are either the player or NPCs. Are controlled by the Controller class. 
 class Actor {
 
-	constructor(id, scene, sprite, x, y, rotation, controller, speed, hp, weapon) {
+	constructor(id, scene, sprite, x, y, rotation, controller, speed, hp, weapon, dodgespeed, dodgetime, slowspeed) {
 
 		this.id = id;
 		this.scene = scene;
@@ -103,7 +103,6 @@ class Actor {
 		this.sprite.body.classId = this.id;
 		this.sprite.rotation = rotation;
 		this.controller = controller;
-		this.controller.parent = this;
 		this.speed = speed;
 		this.maxhp = hp;
 		this.hp = hp;
@@ -115,6 +114,10 @@ class Actor {
 		this.aimtime = 3;
 		this.aimtimer = 0;
 		this.stateid = 0;
+		this.dodgespeed = dodgespeed;
+		this.dodgetime = dodgetime;
+		this.dodgetimer = 0;
+		this.slowspeed = slowspeed;
 
 	}
 
@@ -129,6 +132,7 @@ class Actor {
 			console.log("path found");
 			this.pathing = true;
 			this.path = path;
+			this.stateid = 0;
 		} else {
 
 			console.log("path not found");
@@ -137,9 +141,14 @@ class Actor {
 
 	}
 
-	dodgeInDirection(degs) {
-
-
+	dodgeInDirection(rads) {
+		if (this.stateid == 0) {
+			var dir = new Phaser.Math.Vector2(Math.cos(rads), Math.sin(rads))
+			console.log(dir);
+			this.sprite.setVelocity(dir.x * this.dodgespeed, dir.y * this.dodgespeed);
+			this.stateid = 1;
+			this.dodgetimer = 0;
+		}
 
 	}
 
@@ -218,6 +227,7 @@ class Actor {
 
 			case 0:
 				{
+					this.sprite.setAngularVelocity(0);
 					if (this.scene.delta != NaN) {
 						this.aimtimer = this.aimtimer + this.scene.delta;
 					}
@@ -247,7 +257,7 @@ class Actor {
 					} else {
 
 						this.sprite.setVelocity(0, 0);
-						this.sprite.setAngularVelocity(0);
+						
 
 					}
 
@@ -256,6 +266,18 @@ class Actor {
 
 			case 1:
 				{
+					console.log(this.dodgetime);
+					if (this.dodgetimer < this.dodgetime) {
+						this.dodgetimer += this.scene.delta;
+						this.sprite.setVelocity(this.sprite.body.velocity.x * (1 - this.slowspeed), this.sprite.body.velocity.y * (1 - this.slowspeed));
+
+					} else {
+
+						this.sprite.setVelocity(0, 0);
+						this.stateid = 0;
+						this.dodgetimer = 0;
+
+					}
 
 				}
 			break;
@@ -413,67 +435,70 @@ class Projectile{
 //======================Controller Classes======================
 class TouchController {
 
-	constructor(presslength, swipesens) {
+	constructor(presslength, swipesens, parent) {
 
 		this.presslength = presslength;
 		this.swipesens = swipesens;
-		this.parent;
+		this.parent = parent;
 		this.stRegister = false;
 		this.ltRegister = false;
+		this.lookmode = false;
 		this.touchProperties;
-		//Initialising ZingTouch
-		this.zt = ZingTouch.Region(game.context.canvas);
-		
-		var sTouch = new ZingTouch.Tap({
-			maxDelay: 1000,
-			numInputs: 1,
-			tolerance: 100
-		});
 
-		var st = this.singleTouch.bind(this);
-		this.zt.bind(game.context.canvas, sTouch, st);
+		var td = this.touchDown.bind(this);
+		this.parent.scene.input.on("pointerdown", td);
 
-		var sSwipe = new ZingTouch.Swipe({
-			escapeVelocity: 0.5
-		});
-
-		var ss = this.swipe.bind(this);
-		this.zt.bind(game.context.canvas, sSwipe, ss);
-
-		
+		var tu = this.touchUp.bind(this);
+		this.parent.scene.input.on("pointerup", tu);
 		
 
 	}
 
 	update(delta) {
+		if (!this.lookmode) {
+			this.parent.scene.cameras.main.centerOn(this.parent.sprite.x, this.parent.sprite.y);
+		}
 
-		this.parent.scene.cameras.main.centerOn(this.parent.sprite.x, this.parent.sprite.y);
+		for (var i in this.parent.scene.input.manager.pointers) {
 
-	}
+			var p = this.parent.scene.input.manager.pointers[i];
+			if (p.isDown && p.actionable) {
 
-	singleTouch(e) {
+				if (hypotenuse({ x: p.getDistanceX(), y: p.getDistanceY() }) > this.swipesens * this.parent.scene.cameras.main.width) {
+					this.parent.dodgeInDirection(p.angle);
+					p.actionable = false;
+					console.log("Fwoosh!");
+				}
 
-		var point = screenSpacetoWorldSpace(this.parent.scene, e.detail.events[0].pageX, e.detail.events[0].pageY);
-		
-		if (e.detail.interval < this.presslength) {
-			
-			this.parent.shootAt(point);
-			window.navigator.vibrate([50,20,10]);
+				if (this.parent.scene.time.now - p.downTime > this.presslength) {
 
-		} else {
+					this.parent.moveTo(new Phaser.Geom.Point(p.worldX, p.worldY));
+					p.actionable = false;
+				}
+			}
 
-			this.parent.moveTo(point);
-			window.navigator.vibrate(50);
+
 
 		}
 
+
 	}
 
-	swipe(e) {
+	touchDown(p, over) {
+		p.actionable = true;
+	}
 
-		this.parent.dodgeInDirection(e.detail.currentDirection);
-		//window.navigator.vibrate([50, 10, 20, 10, 10, 5, 5, 5, 5, 5, 5]);
+	touchUp(p, over) {
+		console.log(p.upTime - p.downTime);
+		if (p.actionable) {
 
+			if (this.parent.scene.time.now - p.downTime < this.presslength) {
+
+				this.parent.shootAt(new Phaser.Geom.Point(p.worldX, p.worldY));
+				p.actionable = false;
+			}
+
+		}
 	}
 
 }
@@ -531,9 +556,10 @@ class propData {
 
 class Player extends Actor {
 
-	constructor(id, scene, x, y, rotation, speed, hp, weapon) {
+	constructor(id, scene, x, y, rotation, speed, hp, weapon, dodgespeed, dodgetime, slowspeed) {
 
-		super(id, scene, "player", x, y, rotation, new TouchController((downFrames / 60) * 1000, 0.1), speed, hp, weapon);
+		super(id, scene, "player", x, y, rotation, null, speed, hp, weapon, dodgespeed, dodgetime, slowspeed);
+		this.controller = new TouchController((downFrames / 60) * 1000, 0.1, this);
 		this.sprite.setCircle(8);
 		this.start = new Phaser.Math.Vector2(x, y);
 		this.started = false;

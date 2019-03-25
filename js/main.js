@@ -10,12 +10,17 @@
 //DAY 8 (Wed 2): HUD works now. It displays your time in seconds and milliseconds when playing. Level scripting and flow is done.
 //DAY 9 (Thu 2): Menus Finished. Google Analytics Implemented. Game should be finished now.
 //DAY 10 (Fri 2): Small misc touch ups and bugfixes.
+
+//DAY 11 (Mon 3): Tightened up the movement system, removing Zingtouch integration in the process. Added dodging. 
 var div = document.getElementById("game");
 
 var config = {
 	type: Phaser.AUTO,
 	parent: "game",
 	pixelArt: true,
+	input: {
+		activePointers: 2
+	},
 	scale: {
 		/*parent: 'twr',*/
 		mode: Phaser.Scale.FIT,
@@ -83,6 +88,20 @@ function pointtopoint(point1, point2, vec) {
 	}
 
 	return point3;
+
+}
+
+function dist(point1, point2) {
+
+	var dist = pointtopoint(point1, point2, false);
+
+	return hypotenuse(dist);
+
+}
+
+function hypotenuse(point) {
+
+	return Math.abs(Math.sqrt(point.x * point.x + point.y * point.y));
 
 }
 

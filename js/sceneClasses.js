@@ -148,7 +148,7 @@ function initObject(object) {
 
 			case "Player":
 				{
-					this.player = new Player(this.actors.length, this, object.x, object.y, object.rotation, 5, 100, "gun");
+					this.player = new Player(this.actors.length, this, object.x, object.y, object.rotation, 5, 100, "gun", 7, 1, 0.02);
 					this.actors.push(this.player);
 				}
 				break;
@@ -298,7 +298,6 @@ class btTargets extends BaseScene {
 	}
 
 	update() {
-
 		switch (this.gamestate) {
 			case 0:
 				{
