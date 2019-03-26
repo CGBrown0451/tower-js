@@ -12,6 +12,7 @@
 //DAY 10 (Fri 2): Small misc touch ups and bugfixes.
 
 //DAY 11 (Mon 3): Tightened up the movement system, removing Zingtouch integration in the process. Added dodging. 
+//DAY 12 (Tue 3): Made it so you can restart a scene. Added Vibration to the revised control scheme.
 var div = document.getElementById("game");
 
 var config = {
@@ -56,6 +57,7 @@ var curScene;
 var downFrames = 15;
 var time;
 var acceptedSub = true;
+var vibration = true;
 console.log(navigator);
 //======================Universal Functions======================
 
@@ -145,5 +147,11 @@ function clamp(number, min, max) {
 	}
 
 	return number;
+
+}
+
+function lineofSight(point, angle, fov) {
+
+
 
 }

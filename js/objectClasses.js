@@ -27,7 +27,9 @@ function press() {
 
 	//make a change scene_button.
 	var found = false;
-	window.navigator.vibrate(50);
+	if (this.action != 'toggleVibration' && vibration) {
+		window.navigator.vibrate(50);
+	}
 	this.pressed = true;
 	switch (this.action) {
 
@@ -42,7 +44,8 @@ function press() {
 			found = true;
 			break;
 		case "restart":
-			location.reload();
+			this.scene.scene.restart(this.param);
+			this.scene.scene.start(this.param);
 			found = true;
 			break;
 		case "sensUp":
@@ -59,6 +62,11 @@ function press() {
 			break;
 		case 'link':
 			window.open(this.param);
+			found = true;
+			break;
+		case 'toggleVibration':
+			vibration = !vibration;
+			window.navigator.vibrate(500);
 			found = true;
 			break;
 			
@@ -464,14 +472,8 @@ class TouchController {
 			var p = this.parent.scene.input.manager.pointers[i];
 			if (p.isDown && p.actionable) {
 
-				if (hypotenuse({ x: p.getDistanceX(), y: p.getDistanceY() }) > this.swipesens * this.parent.scene.cameras.main.width) {
-					this.parent.dodgeInDirection(p.angle);
-					p.actionable = false;
-					console.log("Fwoosh!");
-				}
-
 				if (this.parent.scene.time.now - p.downTime > this.presslength) {
-
+					window.navigator.vibrate(50);
 					this.parent.moveTo(new Phaser.Geom.Point(p.worldX, p.worldY));
 					p.actionable = false;
 				}
@@ -486,16 +488,22 @@ class TouchController {
 
 	touchDown(p, over) {
 		p.actionable = true;
+		window.navigator.vibrate(20);
 	}
 
 	touchUp(p, over) {
-		console.log(p.upTime - p.downTime);
 		if (p.actionable) {
 
-			if (this.parent.scene.time.now - p.downTime < this.presslength) {
-
+			if (hypotenuse({ x: p.getDistanceX(), y: p.getDistanceY() }) > this.swipesens * this.parent.scene.cameras.main.width) {
+				this.parent.dodgeInDirection(p.angle);
+				p.actionable = false;
+				window.navigator.vibrate([50, 30, 25, 20, 12, 8, 6, 4, 3, 2, 1]);
+			} else if (this.parent.scene.time.now - p.downTime < this.presslength) {
 				this.parent.shootAt(new Phaser.Geom.Point(p.worldX, p.worldY));
 				p.actionable = false;
+				
+				window.navigator.vibrate([50, 20, 20]);
+				
 			}
 
 		}

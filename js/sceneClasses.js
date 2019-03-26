@@ -7,23 +7,6 @@ class BaseScene extends Phaser.Scene {
 		this.id = id;
 		this.level = level;
 		console.log(id + " is loaded.");
-		if (this.level) {
-			this.actors = [];
-			this.props = [];
-			this.projectiles = [];
-			this.miscobjects = [];
-			this.HUD;
-			this.Matter = Phaser.Physics.Matter.Matter;
-			this.map;
-			this.mainLayer;
-			this.navMesh;
-			this.delta;
-			this.uptime;
-			this.started = false;
-			this.starttime;
-			this.gotime;
-			this.player;
-		}
 
 	}
 
@@ -47,8 +30,24 @@ class BaseScene extends Phaser.Scene {
 	}
 
 	create() {
-
 		if (this.level) {
+
+			//Declare the main variables
+			this.actors = [];
+			this.props = [];
+			this.projectiles = [];
+			this.miscobjects = [];
+			this.HUD;
+			this.Matter = Phaser.Physics.Matter.Matter;
+			this.map;
+			this.mainLayer;
+			this.navMesh;
+			this.delta;
+			this.uptime;
+			this.started = false;
+			this.starttime;
+			this.gotime;
+			this.player;
 
 			//get the tilemap.
 			this.map = this.make.tilemap({ key: 'curLevel' });
@@ -68,12 +67,6 @@ class BaseScene extends Phaser.Scene {
 			//spawn objects.
 			var obj = initObject.bind(this);
 			this.map.filterObjects("Objects", obj);
-
-
-			//TODO: Make Mobile Device browsers fullscreen.
-
-
-			
 		}
 		this.starttime = this.time.now;
 		this.HUD = this.scene.scene.scene.get("UIScene");
@@ -96,13 +89,13 @@ class BaseScene extends Phaser.Scene {
 
 			for (j in this.projectiles) {
 
-				this.projectiles[j].update()
+				this.projectiles[j].update();
 
 			}
 
 			for (k in this.props) {
 
-				this.props[k].update()
+				this.props[k].update();
 
 			}
 
@@ -280,12 +273,6 @@ class btTargets extends BaseScene {
 	preload() {
 
 		super.preload();
-		this.gametime = 0;
-		this.endcardinit = false;
-		this.gamestate = 0;
-		this.finaltime;
-		this.endTime = 5;
-		this.endTimer = 0;
 
 	}
 
@@ -294,6 +281,12 @@ class btTargets extends BaseScene {
 		super.create();
 		this.cameras.main.setBackgroundColor('#666666');
 		this.HUD.initialise("timerOnly", this);
+		this.gametime = 0;
+		this.endcardinit = false;
+		this.gamestate = 0;
+		this.finaltime;
+		this.endTime = 5;
+		this.endTimer = 0;
 
 	}
 
