@@ -16,6 +16,7 @@ class BaseScene extends Phaser.Scene {
 		this.load.image('target', 'sprites/Target.png');
 		this.load.image('button', 'sprites/button.png');
 		this.load.image('bullet', 'sprites/bullet.png');
+		this.load.image('logo', 'sprites/towerlogo.png');
 		this.load.spritesheet('wall', 'sprites/Wall.png', { frameWidth: 32, frameHeight: 32 });
 
 		if (this.level) {
@@ -48,6 +49,12 @@ class BaseScene extends Phaser.Scene {
 			this.starttime;
 			this.gotime;
 			this.player;
+			this.gametime = 0;
+			this.endcardinit = false;
+			this.gamestate = 0;
+			this.finaltime;
+			this.endTime = 5;
+			this.endTimer = 0;
 
 			//get the tilemap.
 			this.map = this.make.tilemap({ key: 'curLevel' });
@@ -80,31 +87,102 @@ class BaseScene extends Phaser.Scene {
 			this.delta = this.time.now - this.uptime;
 			this.uptime = this.time.now;
 			this.delta /= 1000;
+			switch (this.gamestate) {
+				case 0:
+					{
+						this.gametime = (this.time.now - this.gotime) / 1000;
 
-			for (i in this.actors) {
+						for (i in this.actors) {
 
-				this.actors[i].update();
+							this.actors[i].update();
 
-			}
+						}
 
-			for (j in this.projectiles) {
+						for (j in this.projectiles) {
 
-				this.projectiles[j].update();
+							this.projectiles[j].update();
 
-			}
+						}
 
-			for (k in this.props) {
+						for (k in this.props) {
 
-				this.props[k].update();
+							this.props[k].update();
 
-			}
+						}
 
-			if (this.player.started && !this.started) {
+						if (this.player.started && !this.started) {
 
-				this.gotime = this.time.now;
-				console.log(this.gotime);
-				this.started = true;
+							this.gotime = this.time.now;
+							console.log(this.gotime);
+							this.started = true;
 
+						}
+						
+					}
+					break;
+				case 1:
+					{
+
+						if (!this.endcardinit) {
+
+							var text1 = new Text(this.HUD, 480, 225, "Complete!", 50, 0.5, "#FFFFFF");
+							var text2 = new Text(this.HUD, 480, 270, "Time Taken: " + this.finaltime.toString() + " Seconds", 20, 0.5, "#FFFFFF");
+							this.HUD.elements.push(text1);
+							this.HUD.elements.push(text2);
+
+							var resulttext;
+
+							if (this.finaltime < this.bronzetime) {
+
+								resulttext = "You Got Bronze!";
+
+
+							}
+
+							if (this.finaltime < this.silvertime) {
+
+								resulttext = "You Got Silver!";
+
+
+							}
+
+							if (this.finaltime < this.goldtime) {
+
+								resulttext = "You Got Gold!";
+
+
+							}
+
+							if (this.finaltime < this.mybesttime) {
+
+								resulttext = "You beat my time!";
+
+
+							}
+
+							var text3 = new Text(this.HUD, 480, 300, resulttext, 20, 0.5, "#FFFFFF");
+							this.HUD.elements.push(text3);
+
+							this.endcardinit = true;
+
+
+						}
+
+						if (this.endTimer < this.endTime) {
+
+							this.endTimer += this.delta;
+
+						} else {
+
+							this.HUD.finaltime = this.finaltime;
+							time = this.finaltime;
+							this.scene.scene.scene.start('endScene');
+
+
+						}
+
+
+					}
 			}
 
 		}
@@ -159,6 +237,15 @@ function initObject(object) {
 
 				}
 				break;
+
+			case "Ranks":
+				{
+					var text = "Ranks:\nBronze: " + this.bronzetime + "\nSilver: " + this.silvertime + "\nGold: " + this.goldtime + "\nCreator: " + this.mybesttime;
+					var txt = this.add.text(object.x, object.y, text, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
+					txt.setOrigin(0.5);
+					console.log(txt);
+
+				}
 
 		}
 
@@ -221,7 +308,42 @@ class startScene extends BaseScene {
 	constructor() {
 
 		super("startScene", false);
-		this.welcometext = "Hello, and welcome to the TowerJS 0.1 Alpha Test!\nThis is a test that is mainly for touch and mobile devices,\nbut I encourage you to try using a mouse on a computer as well!\nThe Objective is to break all the targets in as little time possible.\nThe controls are simple: press a location for a short amount of time to shoot there.\nPress there a long time to walk there.\nYou can adjust the threshold between the two actions. (The number is in Milliseconds)\nThere is an analytics system in this game. It will only send your time on the\ncourse and your platform of choice. If you are not okay with that, press the analytics button.\nPar time is 40 Seconds, Platinum time is 32, and my best time is about 28.\nHave Fun!"
+		this.welcometext = "Controls:\nPress to Shoot.\nHold to walk.\nSwipe to Lunge."
+
+
+	}
+
+	preload() {
+		super.preload();
+	}
+
+	create() {
+		this.add.image(480, 50, 'logo');
+		new Button('changeScene', 'btTargets', 480, 270, 'button', 'Start!', this);
+		new Button('gotoOptions', 'options', 480, 400, 'button', 'Options', this);
+		this.fs = new Button('toggleFullscreen', '', 880, 500, 'button', 'Go Fullscreen', this);
+		this.maintext = this.add.text(100, 400, this.welcometext, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
+
+	}
+
+	update(time, delta) {
+		super.update();
+
+		if (game.scale.isFullscreen) {
+			this.fs.text.setText("Go Windowed");
+		} else {
+			this.fs.text.setText("Go Fullscreen");
+		}
+
+	}
+
+}
+
+class Options extends BaseScene {
+
+	constructor() {
+
+		super('options', false);
 
 
 	}
@@ -232,29 +354,34 @@ class startScene extends BaseScene {
 
 	create() {
 
-		new Button('changeScene', 'btTargets', 100, 100, 'button', 'Start!', this);
-		new Button('sensUp', 0, 750, 100, 'button', 'Less', this);
-		new Button('sensDown', 0, 900, 100, 'button', 'More', this);
-		this.analytics = new Button('acceptSubmission', 0, 100, 480, 'button', 'Analytics', this);
-		this.sensitivity = new Text(this, 825, 100, downFrames, 20, 0.5, '#FFFFFF', 'center');
-		this.maintext = this.add.text(480, 270, this.welcometext, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
-		this.sens = this.add.text(825, 50, "Threshold", { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
-		this.maintext.setOrigin(0.5);
+		new Button('sensUp', 0, 400, 200, 'button', 'Less', this);
+		new Button('sensDown', 0, 560, 200, 'button', 'More', this);
+		this.back = new Button('changeScene', this.prevScene, 70, 40, 'button', 'Back', this);
+		this.analytics = new Button('acceptSubmission', 0, 560, 450, 'button', 'Analytics', this);
+		this.sensitivity = new Text(this, 480, 200, downFrames, 20, 0.5, '#FFFFFF', 'center');
+		this.sens = this.add.text(480, 150, "Threshold", { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
 		this.sens.setOrigin(0.5);
 		this.sensitivity.textobj.setOrigin(0.5);
+		this.fs = new Button('toggleFullscreen', '', 400, 450, 'button', 'Go Fullscreen', this);
 
 	}
 
-	update(time, delta) {
-		super.update();
-		console.log("update");
+	update() {
+
 		this.sensitivity.textobj.setText(Math.floor(downFrames / 60 * 1000).toString());
-		if (this.analytics.pressed) {
-
+		if (acceptedSub) {
+			this.analytics.text.setText("Analytics");
+		} else {
 			this.analytics.text.setText("No Analytics");
-
 		}
-		
+
+		if (game.scale.isFullscreen) {
+			this.fs.text.setText("Go Windowed");
+		} else {
+			this.fs.text.setText("Go Fullscreen");
+		}
+
+		this.back.param = this.prevScene;
 
 	}
 
@@ -264,9 +391,11 @@ class btTargets extends BaseScene {
 
 	constructor() {
 		super("btTargets", true);
+		this.failtime = 70;
+		this.bronzetime = 50;
+		this.silvertime = 40;
+		this.goldtime = 32.5;
 		this.mybesttime = 27.922;
-		this.partime = 45;
-		this.plattime = 32.5;
 	
 	}
 
@@ -281,101 +410,36 @@ class btTargets extends BaseScene {
 		super.create();
 		this.cameras.main.setBackgroundColor('#666666');
 		this.HUD.initialise("timerOnly", this);
-		this.gametime = 0;
-		this.endcardinit = false;
-		this.gamestate = 0;
-		this.finaltime;
-		this.endTime = 5;
-		this.endTimer = 0;
+		
 
 	}
 
 	update() {
-		switch (this.gamestate) {
-			case 0:
-				{
-					super.update();
-					this.gametime = (this.time.now - this.gotime) / 1000;
-					if (this.props.length == 0) {
 
-						console.log(this.gametime);
-						this.gamestate = 1;
-						this.HUD.initialise("nothing", this);
-						this.finaltime = this.gametime.toFixed(3);
-						break;
+		super.update();
 
-					}
+		if (this.gamestate == 0) {
 
-					var disptime;
-					if (!this.started) {
-						disptime = 0.000;
-					} else {
-						disptime = this.gametime;
-					}
+			if (this.props.length == 0) {
 
-					this.HUD.elements[0].text = disptime.toFixed(3).toString();
-					this.HUD.elements[1].text = "Left: " + this.props.length;
-				}
-				break;
-			case 1:
-				{
+				console.log(this.gametime);
+				this.gamestate = 1;
+				this.HUD.initialise("nothing", this);
+				this.finaltime = this.gametime.toFixed(3);
+				return;
 
-					if (!this.endcardinit) {
+			}
 
-						var text1 = new Text(this.HUD, 480, 225, "Complete!", 50, 0.5, "#FFFFFF");
-						var text2 = new Text(this.HUD, 480, 270, "Time Taken: " + this.finaltime.toString() + " Seconds", 20, 0.5, "#FFFFFF");
-						this.HUD.elements.push(text1);
-						this.HUD.elements.push(text2);
+			var disptime;
+			if (!this.started) {
+				disptime = 0.000;
+			} else {
+				disptime = this.gametime;
+			}
 
-						var resulttext;
-
-						if (this.finaltime < this.partime) {
-
-							resulttext = "You beat Par Time!";
-							
-
-						}
-
-						if (this.finaltime < this.plattime) {
-
-							resulttext = "You beat Platinum Time!";
-							
-
-						}
-
-						if (this.finaltime < this.mybesttime) {
-
-							resulttext = "You beat the creator's time!";
-							
-
-						}
-
-						var text3 = new Text(this.HUD, 480, 300, resulttext, 20, 0.5, "#FFFFFF");
-						this.HUD.elements.push(text3);
-
-						this.endcardinit = true;
-						game.scale.stopFullscreen();
-
-					}
-
-					console.log(this.delta);
-
-					if (this.endTimer < this.endTime) {
-
-						this.endTimer += this.delta;
-
-					} else {
-
-						this.scene.scene.scene.start('endScene');
-						this.HUD.finaltime = this.finaltime;
-						time = this.finaltime;
-
-					}
-
-
-				}
-	}
-		
+			this.HUD.elements[0].text = disptime.toFixed(3).toString();
+			this.HUD.elements[1].text = "Left: " + this.props.length;
+		}	
 	}
 
 }
@@ -401,6 +465,7 @@ class endScene extends BaseScene {
 		this.maintext.setOrigin(0.5);
 		new Button('link', 'https://goo.gl/forms/310WOCv371YL7mNj2', 400, 490, 'button', 'Feedback', this);
 		new Button('restart', 'btTargets', 560, 490, 'button', 'Restart', this);
+		new Button('gotoOptions', '', 480, 400, 'button', 'Options', this);
 
 		if (acceptedSub) {
 

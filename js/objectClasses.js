@@ -11,7 +11,7 @@ class Button{
 		this.y = y;
 		this.scene = scene;
 		this.button = this.scene.add.sprite(x, y, sprite).setInteractive();
-		this.text = this.scene.add.text(x, y + 40, text, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
+		this.text = this.scene.add.text(x, y, text, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
 		this.text.setOrigin(0.5);
 		this.pressed = false;
 
@@ -38,9 +38,8 @@ function press() {
 			found = true;
 			break;
 		case "changeScene":
-			this.scene.scene.start(this.param);
-			game.scale.startFullscreen();
 			curScene = this.param;
+			this.scene.scene.start(this.param);
 			found = true;
 			break;
 		case "restart":
@@ -57,7 +56,7 @@ function press() {
 			found = true;
 			break;
 		case "acceptSubmission":
-			acceptedSub = false;
+			acceptedSub = !acceptedSub;
 			found = true;
 			break;
 		case 'link':
@@ -67,6 +66,19 @@ function press() {
 		case 'toggleVibration':
 			vibration = !vibration;
 			window.navigator.vibrate(500);
+			found = true;
+			break;
+		case 'toggleFullscreen':
+			if (game.scale.isFullscreen) {
+				game.scale.stopFullscreen();
+			} else {
+				game.scale.startFullscreen();
+			}
+			found = true;
+			break;
+		case 'gotoOptions':
+			this.scene.scene.get('options').prevScene = this.scene.id;
+			this.scene.scene.start('options');
 			found = true;
 			break;
 			
@@ -337,10 +349,8 @@ class Prop{
 	}
 
 	destroy() {
-		console.log(this.id);
 		if (this.id < this.scene.props.length) {
 			for (var i = this.id + 1; i != this.scene.props.length; i++) {
-				console.log(i);
 				this.scene.props[i].id--;
 				this.scene.props[i].sprite.body.classId--;
 
@@ -354,7 +364,6 @@ class Prop{
 	update() {
 
 		if (this.hp <= 0) {
-			console.log("Destroy prop" + this.id);
 			this.destroy();
 
 		}
@@ -384,7 +393,6 @@ class Projectile{
 		this.sprite.body.frictionAir = 0.002;
 		var vel = angleToVector(false, this.sprite.rotation).scale(this.data.speed);
 		this.sprite.setVelocity(vel.x, vel.y);
-		console.log(this);
 	}
 
 	update() {

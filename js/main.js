@@ -13,6 +13,7 @@
 
 //DAY 11 (Mon 3): Tightened up the movement system, removing Zingtouch integration in the process. Added dodging. 
 //DAY 12 (Tue 3): Made it so you can restart a scene. Added Vibration to the revised control scheme.
+//DAY 13 (Wed 3): Completely Revised UI. Made a new button image to facilitate smaller touchscreens.
 var div = document.getElementById("game");
 
 var config = {
@@ -47,7 +48,7 @@ var config = {
 		]
 	},
 
-	scene: [startScene, btTargets, HUD, endScene],
+	scene: [startScene, Options, btTargets, HUD, endScene],
 	
 };
 
@@ -154,4 +155,42 @@ function lineofSight(point, angle, fov) {
 
 
 
+}
+
+function getCookie(cname) {
+	var name = cname + "=";
+	var decodedCookie = decodeURIComponent(document.cookie);
+	var ca = decodedCookie.split(';');
+	for (var i = 0; i < ca.length; i++) {
+		var c = ca[i];
+		while (c.charAt(0) == ' ') {
+			c = c.substring(1);
+		}
+		if (c.indexOf(name) == 0) {
+			return [c.substring(name.length, c.length), i];
+		}
+	}
+	return "";
+}
+
+function setCookie(cname, prop) {
+
+	var cookie = cname + "=" + prop;
+	var decodedCookie = decodeURIComponent(document.cookie);
+	var ca = decodedCookie.split(';');
+	var cook = getCookie(cname);
+	if (cook != "") {
+
+		ca[cook[1]] = cookie;
+		var cookiestring;
+		for (var i in ca) {
+			cookiestring += ca[i] + ";"
+		}
+		document.cookie = cookiestring;
+
+	} else {
+
+		document.cookie = cookie[0] + ";";
+	}
+	console.log(document.cookie);
 }
