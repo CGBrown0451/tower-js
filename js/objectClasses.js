@@ -96,12 +96,74 @@ class Text {
 		this.textobj = this.scene.add.text(x, y, text, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', fontSize: size.toString() + "px", color: color, align: align });
 		this.align = origin;
 		this.text = text;
+		this.type = "Text";
+
 	}
 
 	update() {
 
 		this.textobj.setText(this.text);
 		this.textobj.setOrigin(this.align);
+
+	}
+
+}
+
+class Crosshair {
+
+	constructor(scene, pointer, sprite, id) {
+
+		this.scene = scene;
+		this.pointer = pointer;
+		this.id = id;
+		this.sprite = this.scene.add.image(pointer.position.x, pointer.position.y, sprite);
+		this.type = "Crosshair";
+		this.circle = new Phaser.Geom.Circle(this.sprite.x, this.sprite.y, 64);
+
+	}
+
+	update() {
+
+		var graphics = this.scene.graphics;
+
+		this.sprite.x = this.pointer.x;
+		this.sprite.y = this.pointer.y;
+
+		//Draw circle meter
+
+		this.circle.x = this.pointer.x;
+		this.circle.y = this.pointer.y;
+
+		graphics.beginPath();
+
+		graphics.lineStyle(5, 0x000000, 1); 
+		graphics.strokeCircleShape(this.circle);
+
+		graphics.lineStyle(5, 0xFF0000, 1);
+
+		var arclength = ((this.scene.time.now - this.pointer.downTime) / ((downFrames / 60) * 1000)) * 360;
+		graphics.arc(this.sprite.x, this.sprite.y, 64, Phaser.Math.DegToRad(270), Phaser.Math.DegToRad(270 + arclength), false);
+
+		graphics.closePath();
+
+
+		if (!this.pointer.isDown) {
+			this.destroy();
+		}
+
+	}
+
+	destroy() {
+		console.log(this.id + " " + this.scene.elements.length);
+		if (this.id < this.scene.elements.length) {
+			for (var i = this.id + 1; i < this.scene.elements.length; i++) {
+				this.scene.elements[i].id--;
+
+			}
+		}
+		this.scene.elements.splice(this.id, 1);
+		this.sprite.destroy();
+		this.pointer.sprited = false;
 
 	}
 

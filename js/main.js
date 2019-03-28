@@ -14,10 +14,11 @@
 //DAY 11 (Mon 3): Tightened up the movement system, removing Zingtouch integration in the process. Added dodging. 
 //DAY 12 (Tue 3): Made it so you can restart a scene. Added Vibration to the revised control scheme.
 //DAY 13 (Wed 3): Completely Revised UI. Made a new button image to facilitate smaller touchscreens.
+//DAY 14 (Thu 3): Added a dynamic crosshair.
 var div = document.getElementById("game");
 
 var config = {
-	type: Phaser.AUTO,
+	type: Phaser.WEBGL,
 	parent: "game",
 	pixelArt: true,
 	input: {

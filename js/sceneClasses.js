@@ -17,6 +17,7 @@ class BaseScene extends Phaser.Scene {
 		this.load.image('button', 'sprites/button.png');
 		this.load.image('bullet', 'sprites/bullet.png');
 		this.load.image('logo', 'sprites/towerlogo.png');
+		this.load.image('crosshair', 'sprites/Crosshair.png');
 		this.load.spritesheet('wall', 'sprites/Wall.png', { frameWidth: 32, frameHeight: 32 });
 
 		if (this.level) {
@@ -31,6 +32,7 @@ class BaseScene extends Phaser.Scene {
 	}
 
 	create() {
+		this.HUD = this.scene.scene.scene.get("UIScene");
 		if (this.level) {
 			console.log("reee");
 			//Declare the main variables
@@ -38,7 +40,6 @@ class BaseScene extends Phaser.Scene {
 			this.props = [];
 			this.projectiles = [];
 			this.miscobjects = [];
-			this.HUD;
 			this.Matter = Phaser.Physics.Matter.Matter;
 			this.map;
 			this.mainLayer;
@@ -56,6 +57,13 @@ class BaseScene extends Phaser.Scene {
 			this.endTime = 5;
 			this.endTimer = 0;
 
+			for (var i in this.input.manager.pointers) {
+
+				var p = this.input.manager.pointers[i];
+				p.actionable = false;
+				p.sprited = false;
+
+			}
 			//get the tilemap.
 			this.map = this.make.tilemap({ key: 'curLevel' });
 			this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
@@ -76,7 +84,7 @@ class BaseScene extends Phaser.Scene {
 			this.map.filterObjects("Objects", obj);
 		}
 		this.starttime = this.time.now;
-		this.HUD = this.scene.scene.scene.get("UIScene");
+		
 		
 	}
 
@@ -247,6 +255,16 @@ function initObject(object) {
 					console.log(txt);
 
 				}
+				break;
+
+			case "Text":
+				{
+
+					var txt = this.add.text(object.x, object.y, object.properties.text, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
+					txt.setOrigin(0.5);
+
+				}
+				break;
 
 		}
 
@@ -262,6 +280,14 @@ class HUD extends Phaser.Scene {
 		this.gamescene;
 		this.type;
 		this.elements = [];
+		this.initialised = false;
+
+
+	}
+
+	create() {
+
+		this.graphics = this.add.graphics();
 
 	}
 
@@ -269,9 +295,18 @@ class HUD extends Phaser.Scene {
 
 		this.gamescene = this.scene.get(scene);
 		for (var i in this.elements) {
-
-			this.elements[i].textobj.destroy();
-
+			switch (this.elements[i].type) {
+				case "Text":
+					{
+						this.elements[i].textobj.destroy();
+					}
+					break;
+				case "Crosshair":
+					{
+						this.elements[i].sprite.destroy();
+					}
+					break;
+			}
 		}
 
 		switch (type) {
@@ -281,11 +316,13 @@ class HUD extends Phaser.Scene {
 					var text1 = new Text(this, 480, 20, "time", 20, 0.5, "#FFFFFF");
 					var text2 = new Text(this, 7, 7, "Left: 16", 15, 0, "#FFFFFF");
 					this.elements = [text1, text2];
+					this.initialised = true;
 				}
 				break;
 			case "nothing":
 				{
 					this.elements = [];
+					this.initialised = true;
 				}
 				break;
 
@@ -295,10 +332,30 @@ class HUD extends Phaser.Scene {
 	}
 
 	update() {
-		for (var i in this.elements) {
+		this.graphics.clear();
+		if (this.initialised) {
+			for (var i in this.elements) {
 
-			this.elements[i].update();
+				this.elements[i].update();
 
+			}
+
+			if (this.gamescene.level) {
+				for (var i in this.scene.scene.input.manager.pointers) {
+
+					var p = this.scene.scene.input.manager.pointers[i];
+					if (p.actionable && !p.sprited) {
+
+						this.elements.push(new Crosshair(this, p, 'crosshair', this.elements.length));
+						p.sprited = true;
+						
+
+					}
+					
+
+				}
+				
+			}
 		}
 
 	}
@@ -319,6 +376,7 @@ class startScene extends BaseScene {
 	}
 
 	create() {
+		super.create();
 		this.add.image(480, 50, 'logo');
 		new Button('changeScene', 'btTargets', 480, 270, 'button', 'Start!', this);
 		new Button('gotoOptions', 'options', 480, 400, 'button', 'Options', this);
