@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.6" orientation="orthogonal" renderorder="right-down" width="85" height="50" tilewidth="32" tileheight="32" infinite="0" nextobjectid="88">
+<map version="1.2" tiledversion="1.2.2" orientation="orthogonal" renderorder="right-down" width="85" height="50" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="105">
  <tileset firstgid="1" name="Wall" tilewidth="32" tileheight="32" tilecount="1" columns="1">
   <image source="../sprites/Wall.png" width="32" height="32"/>
   <tile id="0">
@@ -8,7 +8,7 @@
    </properties>
   </tile>
  </tileset>
- <layer name="Ceilings" width="85" height="50">
+ <layer id="1" name="Ceilings" width="85" height="50">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -62,7 +62,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer name="Walls" width="85" height="50">
+ <layer id="2" name="Walls" width="85" height="50">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -116,120 +116,66 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup name="Objects">
-  <object id="1" name="Spawn" x="96" y="416">
-   <properties>
-    <property name="type" value="Player"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="4" name="Object" x="704" y="256">
-   <properties>
-    <property name="type" value="Target"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="6" name="Object" x="960" y="705">
-   <properties>
-    <property name="type" value="Target"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="7" name="Object" x="1376" y="192">
-   <properties>
-    <property name="type" value="Target"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="8" name="Object" x="1600" y="512">
-   <properties>
-    <property name="type" value="Target"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="9" name="Object" x="1536" y="832">
-   <properties>
-    <property name="type" value="Target"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="10" name="Object" x="1312" y="992">
-   <properties>
-    <property name="type" value="Target"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="11" name="Object" x="1664" y="1128">
-   <properties>
-    <property name="type" value="Target"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="12" name="Object" x="1664" y="928">
-   <properties>
-    <property name="type" value="Target"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="13" name="Object" x="416" y="384">
-   <properties>
-    <property name="type" value="Target"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="15" name="Object" x="544" y="448">
-   <properties>
-    <property name="type" value="Target"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="16" name="Object" x="1504" y="289">
-   <properties>
-    <property name="type" value="Target"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="17" name="Object" x="2048" y="1216">
-   <properties>
-    <property name="type" value="Target"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="18" name="Object" x="2496" y="896">
-   <properties>
-    <property name="type" value="Target"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="19" name="Object" x="1952" y="1120">
-   <properties>
-    <property name="type" value="Target"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="20" name="Object" x="1856" y="672">
-   <properties>
-    <property name="type" value="Target"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="21" name="Object" x="2176" y="800">
-   <properties>
-    <property name="type" value="Target"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="22" name="Object" x="2336" y="320">
-   <properties>
-    <property name="type" value="Target"/>
-   </properties>
+ <objectgroup id="3" name="Objects">
+  <object id="1" name="Spawn" type="Player" x="96" y="416">
    <point/>
   </object>
   <object id="85" name="Object" type="Ranks" x="297" y="273">
    <point/>
   </object>
+  <object id="88" name="Object" type="Target" x="448" y="384">
+   <point/>
+  </object>
+  <object id="89" name="Object" type="Target" x="512" y="448">
+   <point/>
+  </object>
+  <object id="90" name="Object" type="Target" x="704" y="256">
+   <point/>
+  </object>
+  <object id="91" name="Object" type="Target" x="960" y="704">
+   <point/>
+  </object>
+  <object id="92" name="Object" type="Target" x="1408" y="192">
+   <point/>
+  </object>
+  <object id="93" name="Object" type="Target" x="1568" y="320">
+   <point/>
+  </object>
+  <object id="94" name="Object" type="Target" x="1600" y="672">
+   <point/>
+  </object>
+  <object id="95" name="Object" type="Target" x="1536" y="864">
+   <point/>
+  </object>
+  <object id="96" name="Object" type="Target" x="1344" y="992">
+   <point/>
+  </object>
+  <object id="97" name="Object" type="Target" x="1664" y="1120">
+   <point/>
+  </object>
+  <object id="98" name="Object" type="Target" x="1760" y="1312">
+   <point/>
+  </object>
+  <object id="99" name="Object" type="Target" x="1664" y="928">
+   <point/>
+  </object>
+  <object id="100" name="Object" type="Target" x="2048" y="1216">
+   <point/>
+  </object>
+  <object id="101" name="Object" type="Target" x="2496" y="896">
+   <point/>
+  </object>
+  <object id="102" name="Object" type="Target" x="1856" y="672">
+   <point/>
+  </object>
+  <object id="103" name="Object" type="Target" x="2176" y="800">
+   <point/>
+  </object>
+  <object id="104" name="Object" type="Target" x="2336" y="288">
+   <point/>
+  </object>
  </objectgroup>
- <objectgroup name="navMesh">
+ <objectgroup id="4" name="navMesh" locked="1">
   <object id="36" x="80" y="368" width="1200" height="96"/>
   <object id="37" x="688" y="240" width="32" height="128"/>
   <object id="38" x="944" y="464" width="32" height="256"/>
@@ -267,7 +213,7 @@
   <object id="83" x="2224" y="560" width="160" height="256"/>
   <object id="84" x="2288" y="272" width="96" height="288"/>
  </objectgroup>
- <layer name="Floors" width="85" height="50">
+ <layer id="5" name="Floors" width="85" height="50">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

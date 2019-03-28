@@ -32,7 +32,7 @@ class BaseScene extends Phaser.Scene {
 
 	create() {
 		if (this.level) {
-
+			console.log("reee");
 			//Declare the main variables
 			this.actors = [];
 			this.props = [];
@@ -212,15 +212,16 @@ function collisions(event, A, B) {
 }
 
 function initObject(object) {
-
+	console.log(object.name + " " + object.type);
 	if (object.name == "Spawn") {
 
-		switch (object.properties.type) {
+		switch (object.type) {
 
 			case "Player":
 				{
 					this.player = new Player(this.actors.length, this, object.x, object.y, object.rotation, 5, 100, "gun", 7, 1, 0.02);
 					this.actors.push(this.player);
+					console.log(this.player);
 				}
 				break;
 
@@ -228,7 +229,7 @@ function initObject(object) {
 
 	} else if (object.name == "Object") {
 
-		switch (object.properties.type) {
+		switch (object.type) {
 
 			case "Target":
 				{
