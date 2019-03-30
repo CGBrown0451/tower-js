@@ -49,10 +49,12 @@ function press() {
 			break;
 		case "sensUp":
 			downFrames--;
+			setCookie("thr", downFrames);
 			found = true;
 			break;
 		case "sensDown":
 			downFrames++;
+			setCookie("thr", downFrames);
 			found = true;
 			break;
 		case "acceptSubmission":
@@ -134,17 +136,24 @@ class Crosshair {
 		this.circle.x = this.pointer.x;
 		this.circle.y = this.pointer.y;
 
-		graphics.beginPath();
-
 		graphics.lineStyle(5, 0x000000, 1); 
 		graphics.strokeCircleShape(this.circle);
 
-		graphics.lineStyle(5, 0xFF0000, 1);
+		
 
-		var arclength = ((this.scene.time.now - this.pointer.downTime) / ((downFrames / 60) * 1000)) * 360;
-		graphics.arc(this.sprite.x, this.sprite.y, 64, Phaser.Math.DegToRad(270), Phaser.Math.DegToRad(270 + arclength), false);
+		graphics.beginPath();
 
-		graphics.closePath();
+		var arclength = ((this.scene.time.now - this.pointer.downTime) / ((downFrames / 60) * 1000));
+
+		if (arclength > 1) {
+			graphics.lineStyle(5, 0xFFFFFF, 1);
+		} else {
+			graphics.lineStyle(5, 0xFF0000, 1);
+		}
+
+		graphics.arc(this.sprite.x, this.sprite.y, 64, Phaser.Math.DegToRad(270), Phaser.Math.DegToRad(270 + arclength * 360), false);
+
+		graphics.strokePath();
 
 
 		if (!this.pointer.isDown) {

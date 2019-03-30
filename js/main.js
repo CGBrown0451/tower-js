@@ -14,7 +14,8 @@
 //DAY 11 (Mon 3): Tightened up the movement system, removing Zingtouch integration in the process. Added dodging. 
 //DAY 12 (Tue 3): Made it so you can restart a scene. Added Vibration to the revised control scheme.
 //DAY 13 (Wed 3): Completely Revised UI. Made a new button image to facilitate smaller touchscreens.
-//DAY 14 (Thu 3): Added a dynamic crosshair.
+//DAY 14 (Thu 3): Added a dynamic crosshair. Reworked btTargets a bit.
+//DAY 15 (Fri 3): Finished the Dynamic Crosshair. Made a level select screen and started on implementing Cookies into the game.
 var div = document.getElementById("game");
 
 var config = {
@@ -49,7 +50,7 @@ var config = {
 		]
 	},
 
-	scene: [startScene, Options, btTargets, HUD, endScene],
+	scene: [startScene, levelSelect, Options, btTargets, HUD, endScene],
 	
 };
 
@@ -57,6 +58,9 @@ var game = new Phaser.Game(config);
 console.log(game);
 var curScene;
 var downFrames = 15;
+if (getCookie("thr") != "") {
+	downFrames = Number(getCookie("thr"));
+}
 var time;
 var acceptedSub = true;
 var vibration = true;
@@ -168,7 +172,7 @@ function getCookie(cname) {
 			c = c.substring(1);
 		}
 		if (c.indexOf(name) == 0) {
-			return [c.substring(name.length, c.length), i];
+			return c.substring(name.length, c.length);
 		}
 	}
 	return "";
@@ -177,21 +181,5 @@ function getCookie(cname) {
 function setCookie(cname, prop) {
 
 	var cookie = cname + "=" + prop;
-	var decodedCookie = decodeURIComponent(document.cookie);
-	var ca = decodedCookie.split(';');
-	var cook = getCookie(cname);
-	if (cook != "") {
-
-		ca[cook[1]] = cookie;
-		var cookiestring;
-		for (var i in ca) {
-			cookiestring += ca[i] + ";"
-		}
-		document.cookie = cookiestring;
-
-	} else {
-
-		document.cookie = cookie[0] + ";";
-	}
-	console.log(document.cookie);
+	document.cookie = cookie;
 }

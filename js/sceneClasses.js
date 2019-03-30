@@ -1,11 +1,12 @@
 // JavaScript source code
 class BaseScene extends Phaser.Scene {
 
-	constructor(id, level) {
+	constructor(id, level, name) {
 
 		super(id, level);
 		this.id = id;
 		this.level = level;
+		this.name = name;
 		console.log(id + " is loaded.");
 
 	}
@@ -89,7 +90,6 @@ class BaseScene extends Phaser.Scene {
 	}
 
 	update() {
-		downFrames = clamp(downFrames, 5, 30);
 		if (this.level) {
 			var i,j,k;
 			this.delta = this.time.now - this.uptime;
@@ -133,7 +133,33 @@ class BaseScene extends Phaser.Scene {
 
 						if (!this.endcardinit) {
 
-							var text1 = new Text(this.HUD, 480, 225, "Complete!", 50, 0.5, "#FFFFFF");
+							var bestTimeBeaten = false;
+							var congratString = "Complete!";
+
+
+							var best = getCookie(this.id + "besttime");
+
+							if (best != "") {
+								best = Number(best);
+								if (best > this.finaltime) {
+									bestTimeBeaten = true;
+								}
+
+							} else {
+
+								bestTimeBeaten = true;
+
+
+							}
+
+							if (bestTimeBeaten) {
+
+								setCookie(this.id + "besttime", this.finaltime.toString());
+								congratString = "New Record!"
+
+							}
+
+							var text1 = new Text(this.HUD, 480, 225, congratString, 50, 0.5, "#FFFFFF");
 							var text2 = new Text(this.HUD, 480, 270, "Time Taken: " + this.finaltime.toString() + " Seconds", 20, 0.5, "#FFFFFF");
 							this.HUD.elements.push(text1);
 							this.HUD.elements.push(text2);
@@ -252,15 +278,14 @@ function initObject(object) {
 					var text = "Ranks:\nBronze: " + this.bronzetime + "\nSilver: " + this.silvertime + "\nGold: " + this.goldtime + "\nCreator: " + this.mybesttime;
 					var txt = this.add.text(object.x, object.y, text, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
 					txt.setOrigin(0.5);
-					console.log(txt);
 
 				}
 				break;
 
 			case "Text":
 				{
-
-					var txt = this.add.text(object.x, object.y, object.properties.text, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
+					console.log(object);
+					var txt = this.add.text(object.x, object.y, object.properties[0].value, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
 					txt.setOrigin(0.5);
 
 				}
@@ -277,6 +302,8 @@ class HUD extends Phaser.Scene {
 	constructor() {
 
 		super({ key: 'UIScene', active: true });
+		this.id = "HUD";
+		this.level = false;
 		this.gamescene;
 		this.type;
 		this.elements = [];
@@ -378,7 +405,7 @@ class startScene extends BaseScene {
 	create() {
 		super.create();
 		this.add.image(480, 50, 'logo');
-		new Button('changeScene', 'btTargets', 480, 270, 'button', 'Start!', this);
+		new Button('changeScene', 'levelSelect', 480, 270, 'button', 'Start!', this);
 		new Button('gotoOptions', 'options', 480, 400, 'button', 'Options', this);
 		this.fs = new Button('toggleFullscreen', '', 880, 500, 'button', 'Go Fullscreen', this);
 		this.maintext = this.add.text(100, 400, this.welcometext, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
@@ -395,6 +422,101 @@ class startScene extends BaseScene {
 		}
 
 	}
+
+}
+
+class levelSelect extends BaseScene {
+
+	constructor() {
+
+		super("levelSelect", false);
+		
+
+	}
+
+	preload() {
+		super.preload();
+	}
+
+	create() {
+		super.create();
+		this.buttons = [];
+		this.targetSpacing = { x: 100, y: 50 };
+		this.startPos = { x: 100, y: 100 };
+		this.maxgrid = { x: 5, y: 3 };
+		var nextpos = this.startPos;
+		var gridcount = {x: 0, y: 0};
+		for (var i in game.scene.scenes) {
+			var s = game.scene.scenes[i];
+			if (s.level) {
+				this.buttons.push(new Button('changeScene', s.id, nextpos.x, nextpos.y, 'button', s.name, this));
+
+				var txt = this.add.text(nextpos.x, nextpos.y + 45, "Time", { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
+				txt.setOrigin(0.5);
+				var text = "Not Set"
+
+				var cookie = getCookie(s.id + "besttime");
+
+				if (cookie != "") {
+
+					cookie = Number(cookie);
+
+					if (cookie < s.bronzetime) {
+
+						txt.setColor("#CD7F32");
+
+
+					}
+
+					if (cookie < s.silvertime) {
+
+						txt.setColor("#C0C0C0");
+
+					}
+
+					if (cookie < s.goldtime) {
+
+						txt.setColor("#FFD700");
+
+					}
+
+					if (cookie < s.mybesttime) {
+
+						txt.setColor("#E5E4E2");
+
+					}
+					text = "Best: " + cookie.toString();
+
+				}
+
+				txt.setText(text);
+
+				gridcount.x++;
+				if (gridcount.x < this.maxgrid) {
+
+					nextpos.x += this.targetSpacing.x;
+
+					
+
+				} else {
+
+					nextpos.x = this.startPos.x;
+					nextpos.y += this.targetSpacing.y;
+					gridcount.x = 0;
+					gridcount.y++;
+
+				}
+
+
+			}
+
+		}
+
+		new Button('changeScene', 'startScene', 64, 506, 'button', 'Back', this);
+
+
+	}
+
 
 }
 
@@ -426,7 +548,7 @@ class Options extends BaseScene {
 	}
 
 	update() {
-
+		downFrames = clamp(downFrames, 5, 30);
 		this.sensitivity.textobj.setText(Math.floor(downFrames / 60 * 1000).toString());
 		if (acceptedSub) {
 			this.analytics.text.setText("Analytics");
@@ -449,12 +571,12 @@ class Options extends BaseScene {
 class btTargets extends BaseScene {
 
 	constructor() {
-		super("btTargets", true);
+		super("btTargets", true, "Target\nPractice");
 		this.failtime = 70;
 		this.bronzetime = 50;
 		this.silvertime = 40;
 		this.goldtime = 32.5;
-		this.mybesttime = 27.922;
+		this.mybesttime = 25.152;
 	
 	}
 
