@@ -7,6 +7,7 @@ class BaseScene extends Phaser.Scene {
 		this.id = id;
 		this.level = level;
 		this.name = name;
+		this.prevScene;
 		console.log(id + " is loaded.");
 
 	}
@@ -23,7 +24,7 @@ class BaseScene extends Phaser.Scene {
 
 		if (this.level) {
 
-			this.load.tilemapTiledJSON('curLevel', 'maps/' + this.id + ".json");
+			this.load.tilemapTiledJSON(this.id, 'maps/' + this.id + ".json");
 
 			var col = collisions.bind(this);
 			this.matter.world.on('collisionstart', col);
@@ -35,7 +36,6 @@ class BaseScene extends Phaser.Scene {
 	create() {
 		this.HUD = this.scene.scene.scene.get("UIScene");
 		if (this.level) {
-			console.log("reee");
 			//Declare the main variables
 			this.actors = [];
 			this.props = [];
@@ -66,13 +66,12 @@ class BaseScene extends Phaser.Scene {
 
 			}
 			//get the tilemap.
-			this.map = this.make.tilemap({ key: 'curLevel' });
+			this.map = this.make.tilemap({ key: this.id });
 			this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
 
 			//Change this bit later; build the level
 			var walls = this.map.addTilesetImage('Wall', 'wall');
 			this.mainLayer = this.map.createStaticLayer('Walls', walls, 0, 0);
-			console.log(this.mainLayer);
 			this.mainLayer.setCollisionByProperty({ collides: true });
 			this.matter.world.convertTilemapLayer(this.mainLayer);
 
@@ -148,9 +147,11 @@ class BaseScene extends Phaser.Scene {
 							} else {
 
 								bestTimeBeaten = true;
-
+								
 
 							}
+
+							nr = bestTimeBeaten;
 
 							if (bestTimeBeaten) {
 
@@ -169,28 +170,28 @@ class BaseScene extends Phaser.Scene {
 							if (this.finaltime < this.bronzetime) {
 
 								resulttext = "You Got Bronze!";
-
+								
 
 							}
 
 							if (this.finaltime < this.silvertime) {
 
 								resulttext = "You Got Silver!";
-
+								
 
 							}
 
 							if (this.finaltime < this.goldtime) {
 
 								resulttext = "You Got Gold!";
-
+								
 
 							}
 
 							if (this.finaltime < this.mybesttime) {
 
 								resulttext = "You beat my time!";
-
+								
 
 							}
 
@@ -210,6 +211,7 @@ class BaseScene extends Phaser.Scene {
 
 							this.HUD.finaltime = this.finaltime;
 							time = this.finaltime;
+							this.scene.scene.scene.get('endScene').prevScene = this.id;
 							this.scene.scene.scene.start('endScene');
 
 
@@ -246,7 +248,6 @@ function collisions(event, A, B) {
 }
 
 function initObject(object) {
-	console.log(object.name + " " + object.type);
 	if (object.name == "Spawn") {
 
 		switch (object.type) {
@@ -255,7 +256,7 @@ function initObject(object) {
 				{
 					this.player = new Player(this.actors.length, this, object.x, object.y, object.rotation, 5, 100, "gun", 7, 1, 0.02);
 					this.actors.push(this.player);
-					console.log(this.player);
+					
 				}
 				break;
 
@@ -284,7 +285,7 @@ function initObject(object) {
 
 			case "Text":
 				{
-					console.log(object);
+					
 					var txt = this.add.text(object.x, object.y, object.properties[0].value, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
 					txt.setOrigin(0.5);
 
@@ -441,7 +442,7 @@ class levelSelect extends BaseScene {
 	create() {
 		super.create();
 		this.buttons = [];
-		this.targetSpacing = { x: 100, y: 50 };
+		this.targetSpacing = { x: 100, y: 100 };
 		this.startPos = { x: 100, y: 100 };
 		this.maxgrid = { x: 5, y: 3 };
 		var nextpos = this.startPos;
@@ -571,12 +572,12 @@ class Options extends BaseScene {
 class btTargets extends BaseScene {
 
 	constructor() {
-		super("btTargets", true, "Target\nPractice");
+		super("btTargets", true, "Target Practice");
 		this.failtime = 70;
 		this.bronzetime = 50;
 		this.silvertime = 40;
 		this.goldtime = 32.5;
-		this.mybesttime = 25.152;
+		this.mybesttime = 24;
 	
 	}
 
@@ -625,11 +626,67 @@ class btTargets extends BaseScene {
 
 }
 
+class Tutorial extends BaseScene {
+
+	constructor() {
+		super("tutorial", true, "Tutorial");
+		this.failtime = 1000000;
+		this.bronzetime = 150;
+		this.silvertime = 100;
+		this.goldtime = 50;
+		this.mybesttime = 20;
+
+	}
+
+	preload() {
+
+		super.preload();
+
+	}
+
+	create() {
+
+		super.create();
+		this.cameras.main.setBackgroundColor('#666666');
+		this.HUD.initialise("timerOnly", this);
+
+
+	}
+
+	update() {
+
+		super.update();
+
+		if (this.gamestate == 0) {
+
+			if (this.props.length == 0) {
+
+				console.log(this.gametime);
+				this.gamestate = 1;
+				this.HUD.initialise("nothing", this);
+				this.finaltime = this.gametime.toFixed(3);
+				return;
+
+			}
+
+			var disptime;
+			if (!this.started) {
+				disptime = 0.000;
+			} else {
+				disptime = this.gametime;
+			}
+
+			this.HUD.elements[0].text = disptime.toFixed(3).toString();
+			this.HUD.elements[1].text = "Left: " + this.props.length;
+		}
+	}
+
+}
+
 class endScene extends BaseScene {
 
 	constructor() {
 		super('endScene', false);
-		this.welcometext = "You completed the test level!\nThank you for testing my game!\nIf you want to help further, please do the short feedback questionnaire,\nor retry on this or other platforms!";
 	}
 
 	preload() {
@@ -642,11 +699,55 @@ class endScene extends BaseScene {
 
 		super.create();
 		this.HUD.initialise("nothing", this);
-		this.maintext = this.add.text(480, 270, this.welcometext, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
+
+		var prev = this.scene.scene.scene.get(this.prevScene);
+
+		
+		var resulttext = "", recordtext = "";
+
+		if (time < prev.bronzetime) {
+
+			resulttext = ",\nAchieving Bronze Time by " + (prev.bronzetime - time).toFixed(3) + " Seconds";
+
+
+		}
+
+		if (time < prev.silvertime) {
+
+			resulttext = ",\nAchieving Silver Time by " + (prev.silvertime - time).toFixed(3) + " Seconds";
+
+
+		}
+
+		if (time < prev.goldtime) {
+
+			resulttext = ",\nAchieving Gold Time by " + (prev.goldtime - time).toFixed(3) + " Seconds";
+
+
+		}
+
+		if (time < prev.mybesttime) {
+
+			resulttext = ",\nBeating the creator's best Time by " + (prev.mybesttime - time).toFixed(3) + " Seconds";
+
+
+		}
+
+		if (nr) {
+			recordtext = "\nAnd Setting a New Personal Best"
+		}
+
+		var string = "You beat " + prev.name + " in " + time + " seconds" + resulttext + recordtext + "!";
+
+		this.maintext = this.add.text(480, 50, "Complete!", { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center', fontSize: "40px"});
+		this.maintext.setOrigin(0.5);
+
+		this.maintext = this.add.text(480, 270, string, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
 		this.maintext.setOrigin(0.5);
 		new Button('link', 'https://goo.gl/forms/310WOCv371YL7mNj2', 400, 490, 'button', 'Feedback', this);
-		new Button('restart', 'btTargets', 560, 490, 'button', 'Restart', this);
-		new Button('gotoOptions', '', 480, 400, 'button', 'Options', this);
+		new Button('restart', this.prevScene, 560, 490, 'button', 'Restart', this);
+		new Button('gotoOptions', '', 400, 400, 'button', 'Options', this);
+		new Button('changeScene', 'levelSelect', 560, 400, 'button', 'Level\nSelect', this);
 
 		if (acceptedSub) {
 

@@ -16,6 +16,8 @@
 //DAY 13 (Wed 3): Completely Revised UI. Made a new button image to facilitate smaller touchscreens.
 //DAY 14 (Thu 3): Added a dynamic crosshair. Reworked btTargets a bit.
 //DAY 15 (Fri 3): Finished the Dynamic Crosshair. Made a level select screen and started on implementing Cookies into the game.
+
+//DAY 16 (Mon 4): Started with a line of sight script. Hit a wall. May have to do it manually. In the meantime, I made another level and made slight tweaks to accommodate it. Adding new levels should be super easy now.
 var div = document.getElementById("game");
 
 var config = {
@@ -50,7 +52,7 @@ var config = {
 		]
 	},
 
-	scene: [startScene, levelSelect, Options, btTargets, HUD, endScene],
+	scene: [startScene, levelSelect, Options, Tutorial, btTargets, HUD, endScene],
 	
 };
 
@@ -61,7 +63,7 @@ var downFrames = 15;
 if (getCookie("thr") != "") {
 	downFrames = Number(getCookie("thr"));
 }
-var time;
+var time, nr;
 var acceptedSub = true;
 var vibration = true;
 console.log(navigator);
@@ -156,9 +158,37 @@ function clamp(number, min, max) {
 
 }
 
-function lineofSight(point, angle, fov) {
+function lineofSight(seer, angle, fov, range, finds) {
 
+	var seen = [];
 
+	for (var i in finds) {
+
+		if (finds[i] == seer) {
+			continue;
+		}
+
+		if (dist(seer.position, finds[i].position) > range) {
+			console.log("Not in Range");
+			continue;
+		}
+
+		var lookVec = angleToVector(true, angle);
+		var relVec = pointtopoint(seer.position, finds[i].position, true);
+
+		if (Phaser.Math.Angle.Between(lookVec.x, lookVec.y, relVec.x, relVec.y) > fov * Phaser.Math.DEG_TO_RAD) {
+			console.log("Not in FOV");
+			continue;
+		}
+
+		var rayend = { x: seer.position.x + (lookVec.x * range), y: seer.position.y + (lookVec.y * range)};
+
+		var cols = raycast(seer.scene.matter.world.localWorld.bodies, seer.position, rayend, true);
+		console.log(cols);
+
+	}
+
+	return seen;
 
 }
 

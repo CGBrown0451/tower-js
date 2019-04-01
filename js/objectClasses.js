@@ -39,6 +39,7 @@ function press() {
 			break;
 		case "changeScene":
 			curScene = this.param;
+			this.scene.scene.get(this.param).prevScene = this.scene.id;
 			this.scene.scene.start(this.param);
 			found = true;
 			break;
@@ -163,7 +164,6 @@ class Crosshair {
 	}
 
 	destroy() {
-		console.log(this.id + " " + this.scene.elements.length);
 		if (this.id < this.scene.elements.length) {
 			for (var i = this.id + 1; i < this.scene.elements.length; i++) {
 				this.scene.elements[i].id--;
@@ -188,7 +188,7 @@ class Actor {
 		this.id = id;
 		this.scene = scene;
 		this.type = 'actor';
-		this.position;
+		this.position = {x: x, y: y};
 		this.sprite = this.scene.matter.add.image(x, y, sprite);
 		this.sprite.body.classType = this.type;
 		this.sprite.body.classId = this.id;
@@ -209,6 +209,7 @@ class Actor {
 		this.dodgetime = dodgetime;
 		this.dodgetimer = 0;
 		this.slowspeed = slowspeed;
+		this.objectsSeen;
 
 	}
 
@@ -313,6 +314,7 @@ class Actor {
 
 	update(delta) {
 		this.position = new Phaser.Geom.Point(this.sprite.x, this.sprite.y);
+		this.objectsSeen = lineofSight(this, this.sprite.angle, 45, 300, this.scene.actors);
 		this.controller.update();
 		switch (this.stateid) {
 
@@ -374,6 +376,7 @@ class Actor {
 			break;
 
 		}
+		
 
 	}
 
@@ -586,6 +589,18 @@ class TouchController {
 			}
 
 		}
+	}
+
+}
+
+class EnemyBrain {
+
+	constructor() {
+
+	}
+
+	update() {
+
 	}
 
 }
