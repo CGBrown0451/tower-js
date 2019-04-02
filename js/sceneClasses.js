@@ -57,7 +57,7 @@ class BaseScene extends Phaser.Scene {
 			this.finaltime;
 			this.endTime = 5;
 			this.endTimer = 0;
-
+			this.graphics = this.add.graphics();
 			for (var i in this.input.manager.pointers) {
 
 				var p = this.input.manager.pointers[i];
@@ -74,6 +74,10 @@ class BaseScene extends Phaser.Scene {
 			this.mainLayer = this.map.createStaticLayer('Walls', walls, 0, 0);
 			this.mainLayer.setCollisionByProperty({ collides: true });
 			this.matter.world.convertTilemapLayer(this.mainLayer);
+			var j = this.matter.world.localWorld.bodies;
+			for (var i in this.matter.world.localWorld.bodies) {
+				j[i].object = "";
+			}
 
 			//Build the Navmesh.
 			var mesh = this.map.getObjectLayer("navMesh");
@@ -228,23 +232,14 @@ class BaseScene extends Phaser.Scene {
 };
 
 function collisions(event, A, B) {
-	if (A.classType == 'proj') {
+	if (A.object != "" && B.object != "") {
 
-		if (B.classType != undefined || B.classType != 'proj') {
-			this.projectiles[A.classId].DamageBody(B);
-		} else {
-			this.projectiles[A.classId].bounces += 1;
-		}
-
-	} else if (B.classType == 'proj') {
-
-		if (A.classType != undefined || A.classType != 'proj') {
-			this.projectiles[B.classId].DamageBody(A);
-		} else {
-			this.projectiles[B.classId].bounces += 1;
+		if (A.object.type == "proj") {
+			A.object.DamageBody(B);
+		} else if (B.object.type == "proj") {
+			B.object.DamageBody(A);
 		}
 	}
-
 }
 
 function initObject(object) {
@@ -259,6 +254,12 @@ function initObject(object) {
 					
 				}
 				break;
+			case "Grunt":
+				{
+
+					this.actors.push(new Grunt(this.actors.length, this, object.x, object.y, object.rotation, 5, 100, "gun", 7, 1, 0.02));
+
+				}
 
 		}
 
@@ -686,6 +687,44 @@ class Tutorial extends BaseScene {
 
 			this.HUD.elements[0].text = disptime.toFixed(3).toString();
 			this.HUD.elements[1].text = "Left: " + this.props.length;
+		}
+	}
+
+}
+
+class TestScene extends BaseScene {
+
+	constructor() {
+		super("test", true, "TestScene");
+		this.failtime = 1000000;
+		this.bronzetime = 150;
+		this.silvertime = 100;
+		this.goldtime = 50;
+		this.mybesttime = 20;
+
+	}
+
+	preload() {
+
+		super.preload();
+
+	}
+
+	create() {
+
+		super.create();
+		this.cameras.main.setBackgroundColor('#666666');
+
+
+	}
+
+	update() {
+
+		super.update();
+
+		if (this.gamestate == 0) {
+
+
 		}
 	}
 

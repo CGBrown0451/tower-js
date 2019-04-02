@@ -18,6 +18,7 @@
 //DAY 15 (Fri 3): Finished the Dynamic Crosshair. Made a level select screen and started on implementing Cookies into the game.
 
 //DAY 16 (Mon 4): Started with a line of sight script. Hit a wall. May have to do it manually. In the meantime, I made another level and made slight tweaks to accommodate it. Adding new levels should be super easy now.
+//DAY 17 (Tue 4): Continued with trying to do a line of sight script. Redid the bullet collision system. Made a test level to accommodate the new AI I am making.
 var div = document.getElementById("game");
 
 var config = {
@@ -25,7 +26,7 @@ var config = {
 	parent: "game",
 	pixelArt: true,
 	input: {
-		activePointers: 2
+		activePointers: 5
 	},
 	scale: {
 		/*parent: 'twr',*/
@@ -52,7 +53,7 @@ var config = {
 		]
 	},
 
-	scene: [startScene, levelSelect, Options, Tutorial, btTargets, HUD, endScene],
+	scene: [startScene, levelSelect, Options, Tutorial, btTargets, TestScene, HUD, endScene],
 	
 };
 
@@ -158,7 +159,7 @@ function clamp(number, min, max) {
 
 }
 
-function lineofSight(seer, angle, fov, range, finds) {
+function lineofSight(seer, angle, fov, range, finds, scene) {
 
 	var seen = [];
 
@@ -183,8 +184,16 @@ function lineofSight(seer, angle, fov, range, finds) {
 
 		var rayend = { x: seer.position.x + (lookVec.x * range), y: seer.position.y + (lookVec.y * range)};
 
-		var cols = raycast(seer.scene.matter.world.localWorld.bodies, seer.position, rayend, true);
-		console.log(cols);
+		var graphics = scene.graphics;
+
+		graphics.beginPath();
+
+		graphics.moveTo(seer.position.x, seer.position.y);
+		graphics.lineTo(rayend.x, rayend.y);
+
+		graphics.strokePath();
+
+		var objects = Phaser.Physics.Matter.Matter.Query.ray(scene.matter.world.localWorld.bodies, seer.position, rayend);
 
 	}
 

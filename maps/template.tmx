@@ -2,6 +2,11 @@
 <map version="1.2" tiledversion="1.2.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" infinite="0" nextlayerid="7" nextobjectid="1">
  <tileset firstgid="1" name="Wall" tilewidth="32" tileheight="32" tilecount="1" columns="1">
   <image source="../sprites/Wall.png" width="32" height="32"/>
+  <tile id="0">
+   <properties>
+    <property name="collides" type="bool" value="true"/>
+   </properties>
+  </tile>
  </tileset>
  <layer id="4" name="Cielings" width="100" height="100">
   <data encoding="csv">

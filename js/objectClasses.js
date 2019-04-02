@@ -190,8 +190,6 @@ class Actor {
 		this.type = 'actor';
 		this.position = {x: x, y: y};
 		this.sprite = this.scene.matter.add.image(x, y, sprite);
-		this.sprite.body.classType = this.type;
-		this.sprite.body.classId = this.id;
 		this.sprite.rotation = rotation;
 		this.controller = controller;
 		this.speed = speed;
@@ -214,7 +212,7 @@ class Actor {
 	}
 
 	create() {
-
+		
 	}
 
 	moveTo(point) {
@@ -313,8 +311,9 @@ class Actor {
 	}
 
 	update(delta) {
+		this.sprite.body.object = this;
 		this.position = new Phaser.Geom.Point(this.sprite.x, this.sprite.y);
-		this.objectsSeen = lineofSight(this, this.sprite.angle, 45, 300, this.scene.actors);
+		this.objectsSeen = lineofSight(this, this.sprite.angle, 45, 300, this.scene.actors, this.scene);
 		this.controller.update();
 		switch (this.stateid) {
 
@@ -408,8 +407,7 @@ class Prop{
 		if (this.data.circle) {
 			this.sprite.setCircle(this.sprite.width / 2);
 		}
-		this.sprite.body.classType = this.type;
-		this.sprite.body.classId = this.id;
+		this.sprite.body.object = this;
 		this.sprite.rotation = rotation;
 		this.maxhp = this.data.hp;
 		this.hp = this.maxhp;
@@ -457,8 +455,7 @@ class Projectile{
 		this.scene = scene;
 		this.sprite = this.scene.matter.add.image(x, y, sprite);
 		this.sprite.setCircle(5);
-		this.sprite.body.classType = this.type;
-		this.sprite.body.classId = this.id;
+		this.sprite.body.object = this;
 		this.data = projectileData;
 		this.bounces = 0;
 		this.sprite.rotation = rotation;
@@ -482,25 +479,7 @@ class Projectile{
 
 	DamageBody(body) {
 
-		var object;
-
-		if (body.classType == 'actor') {
-
-			object = this.scene.actors[body.classId];
-
-		}
-
-		if (body.classType == 'prop') {
-
-			object = this.scene.props[body.classId];
-
-		}
-
-		if (object == undefined) {
-			return;
-		}
-
-		object.hp -= this.data.damage;
+		body.object.hp -= this.data.damage;
 		this.destroy();
 
 	}
@@ -595,11 +574,15 @@ class TouchController {
 
 class EnemyBrain {
 
-	constructor() {
+	constructor(parent) {
+
+		this.parent = parent;
 
 	}
 
 	update() {
+
+		
 
 	}
 
@@ -692,6 +675,24 @@ class Player extends Actor {
 
 			}
 		}
+
+	}
+
+}
+
+class Grunt extends Actor {
+
+	constructor(id, scene, x, y, rotation, speed, hp, weapon, dodgespeed, dodgetime, slowspeed) {
+
+		super(id, scene, "player", x, y, rotation, null, speed, hp, weapon, dodgespeed, dodgetime, slowspeed);
+		this.controller = new EnemyBrain(this);
+		this.sprite.setCircle(8);
+
+	}
+
+	update(delta) {
+		super.update();
+
 
 	}
 
