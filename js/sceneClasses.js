@@ -578,6 +578,8 @@ class btTargets extends BaseScene {
 		this.silvertime = 40;
 		this.goldtime = 32.5;
 		this.mybesttime = 24;
+		this.shader = "Grey"
+		this.pipeline;
 	
 	}
 
@@ -592,13 +594,19 @@ class btTargets extends BaseScene {
 		super.create();
 		this.cameras.main.setBackgroundColor('#666666');
 		this.HUD.initialise("timerOnly", this);
+
+		this.pipeline = this.game.renderer.addPipeline(this.shader, new PulseRed(this.game));
+
 		
+		//this.cameras.main.setRenderToTexture(this.shader);
 
 	}
 
 	update() {
 
 		super.update();
+
+		this.pipeline.setFloat1('uTime', this.time.now / 1000);
 
 		if (this.gamestate == 0) {
 
@@ -734,7 +742,7 @@ class endScene extends BaseScene {
 		}
 
 		if (nr) {
-			recordtext = "\nAnd Setting a New Personal Best"
+			recordtext = ",\nSetting a New Personal Best"
 		}
 
 		var string = "You beat " + prev.name + " in " + time + " seconds" + resulttext + recordtext + "!";
