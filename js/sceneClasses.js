@@ -256,8 +256,8 @@ function initObject(object) {
 				break;
 			case "Grunt":
 				{
-
-					this.actors.push(new Grunt(this.actors.length, this, object.x, object.y, object.rotation, 5, 100, "gun", 7, 1, 0.02));
+					console.log(object);
+					this.actors.push(new Grunt(this.actors.length, this, object.x, object.y, object.rotation, 2.5, 100, "gun", 7, 1, 0.02, object.properties[0].value));
 
 				}
 

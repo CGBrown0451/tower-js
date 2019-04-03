@@ -183,7 +183,7 @@ class Crosshair {
 //Actors are either the player or NPCs. Are controlled by the Controller class. 
 class Actor {
 
-	constructor(id, scene, sprite, x, y, rotation, controller, speed, hp, weapon, dodgespeed, dodgetime, slowspeed) {
+	constructor(id, scene, sprite, x, y, rotation, controller, speed, hp, weapon, dodgespeed, dodgetime, slowspeed, factionData) {
 
 		this.id = id;
 		this.scene = scene;
@@ -207,7 +207,7 @@ class Actor {
 		this.dodgetime = dodgetime;
 		this.dodgetimer = 0;
 		this.slowspeed = slowspeed;
-		this.objectsSeen;
+		this.factionData = factionData;
 
 	}
 
@@ -223,10 +223,11 @@ class Actor {
 			this.pathing = true;
 			this.path = path;
 			this.stateid = 0;
+			return true;
 		} else {
 
 			console.log("path not found");
-
+			return false;
 		}
 
 	}
@@ -310,10 +311,15 @@ class Actor {
 
 	}
 
+	stopPath() {
+		this.path = [];
+		this.pathing = false;
+	}
+
 	update(delta) {
 		this.sprite.body.object = this;
 		this.position = new Phaser.Geom.Point(this.sprite.x, this.sprite.y);
-		this.objectsSeen = lineofSight(this, this.sprite.angle, 45, 300, this.scene.actors, this.scene);
+		
 		this.controller.update();
 		switch (this.stateid) {
 
@@ -372,7 +378,14 @@ class Actor {
 					}
 
 				}
-			break;
+				break;
+
+			case 2:
+				{
+
+
+				}
+				break;
 
 		}
 		
@@ -574,15 +587,236 @@ class TouchController {
 
 class EnemyBrain {
 
-	constructor(parent) {
+	constructor(parent,path) {
 
 		this.parent = parent;
+		this.enemies = [];
+		this.lastseen = [];
+		this.inView = [];
+		this.amtinView = 0;
+		this.engaging = null;
+		this.stateid = 0;
+		this.timer = [0,0,0,0,0];
+		this.time = [0,0,0,0,0];
+		this.pathindex = 0;
+		this.patrolpath = path.split(",");
+		for (var i in this.patrolpath) {
+			this.patrolpath[i] = Number(this.patrolpath[i]);
+		}
+		var len = this.patrolpath.length / 2;
+		console.log(len);
+		for (var j = 0; j < len; j++) {
+
+			var vec = { x: this.patrolpath[j], y: this.patrolpath[j + 1]}
+			this.patrolpath[j] = vec;
+			this.patrolpath.splice(j+1, 1);
+			console.log(this.patrolpath);
+
+		}
 
 	}
 
 	update() {
 
-		
+		this.objectsSeen = lineofSight(this.parent, this.parent.sprite.angle, 45, 300, this.parent.scene.actors, this.parent.scene);
+		for (var i in this.objectsSeen) {
+			var obj = this.objectsSeen[i];
+			if (!this.enemies.includes(obj)) {
+				for (var j in this.parent.factionData.enemyfactions) {
+
+					if (obj.factionData.friendlyfactions.includes(this.parent.factionData.enemyfactions[j])) {
+
+						this.enemies.push(obj);
+
+					}
+
+				}
+			}
+
+		}
+
+		for (var j in this.enemies) {
+			var obj = this.enemies[j];
+			if (this.objectsSeen.includes(obj)) {
+				this.lastseen[j] = obj.position;
+				if (!this.inView[j]) {
+					this.amtinView++;
+				}
+				this.inView[j] = true;
+			} else {
+				if (this.inView[j]) {
+					this.amtinView--;
+				}
+				this.inView[j] = false;
+			}
+		}
+
+		if (this.amtinView == 0) {
+			var e = [];
+			var lowest = 0; 
+			for (var i in this.lastseen) {
+				var d = dist(this.parent.position, this.lastseen[i]);
+				e.push(d);
+				if (lowest == 0) {
+					lowest = d;
+				} else if (lowest > d) {
+					lowest = d;
+				}
+
+			}
+			for (var j in e) {
+				if (lowest == e[j]) {
+					this.engaging = j;
+					break;
+				}
+			}
+		} else {
+
+			for (i in this.inView) {
+				if (this.inView[i] = true) {
+					this.engaging = i;
+					break;
+				}
+			}
+
+		}
+
+		var eObject = this.enemies[this.engaging];
+		var eView = this.inView[this.engaging];
+		var eSeen = this.lastseen[this.engaging];
+
+		switch (this.stateid) {
+
+			case 0:
+				{
+					//Patrol
+					this.time[0] = 2;
+					if (this.parent.pathing) {
+
+					} else {
+						this.timer[0] += this.parent.scene.delta;
+						if (this.timer[0] > this.time[0]) {
+							this.pathindex++;
+							if (this.pathindex == this.patrolpath.length) {
+								this.pathindex = 0;
+							}
+							this.parent.moveTo(this.patrolpath[this.pathindex]);
+							this.timer[0] = 0;
+						}
+					}
+					if (this.engaging != null) {
+
+						this.stateid = 1;
+						this.parent.stopPath();
+						this.timer[0] = 0;
+
+					}
+				}
+				break;
+			case 1:
+				{
+					//Seen
+					this.parent.stopPath();
+					this.time[0] = 0.5;
+					this.timer[0] += this.parent.scene.delta;
+					this.parent.lookAt(eSeen);
+					if (this.timer[0] > this.time[0]) {
+						if (eView) {
+							this.stateid = 2;
+						} else {
+							this.stateid = 3;
+						}
+						this.timer[0] = 0;
+					}
+
+				}
+				break;
+			case 2:
+				{
+					//Combat
+					this.time[0] = 2;
+					this.time[1] = 1;
+					this.timer[0] += this.parent.scene.delta;
+					this.timer[1] += this.parent.scene.delta;
+					if (this.timer[0] > this.time[0]) {
+						this.time[0] = randomRange(1.5, 2.5);
+						this.timer[0] = 0;
+						this.parent.moveTo({ x: this.parent.position.x + randomRange(-20, 20), y: this.parent.position.y + randomRange(-20, 20) });
+						this.parent.lookAt(eSeen);
+					}
+
+					if (this.timer[1] > this.time[1]) {
+						this.time[1] = randomRange(0.5, 1.5);
+						this.timer[1] = 0;
+						this.parent.shootAt(eSeen);
+					}
+
+					if (!eView) {
+						this.stateid = 3;
+						this.timer[0] = 0;
+						this.timer[1] = 0;
+					} else {
+						this.parent.lookAt(eSeen);
+					}
+
+				}
+				break;
+			case 3:
+				{
+					//Chase
+					this.time[0] = 2;
+					console.log(this.timer[1]);
+					if (this.parent.pathing) {
+						this.parent.lookAt(eSeen);
+					} else {
+						if (this.timer[1] < 1) {
+							this.parent.moveTo(eSeen);
+							this.timer[1] = 1;
+						} else {
+							this.timer[0] += this.parent.scene.delta;
+							if (this.timer[0] > this.time[0]) {
+								this.stateid = 4;
+								this.timer[1] = 0;
+								this.timer[0] = 0;
+							}
+						}
+					}
+
+					if (eView) {
+
+						this.timer[1] = 0;
+						this.timer[0] = 0;
+						this.parent.stopPath();
+						this.stateid = 2;
+
+					}
+
+				}
+				break;
+			case 4:
+				{
+					//Lookfor
+					this.time[0] = 2;
+					if (!this.parent.pathing) {
+						this.timer[0] += this.parent.scene.delta;
+						if (this.timer[0] > this.time[0]) {
+							if (this.parent.moveTo({ x: this.parent.position.x + randomRange(-200, 200), y: this.parent.position.y + randomRange(-200, 200) })) {
+								this.timer[0] = 0;
+							}
+						}
+					}
+
+					if (eView) {
+						this.timer[0] = 0;
+						this.stateid = 2;
+						this.parent.stopPath();
+					}
+
+				}
+		}
+		if (isNaN(this.timer[0])) {
+			this.timer[0] = 0;
+		}
 
 	}
 
@@ -636,6 +870,17 @@ class propData {
 
 }
 
+class factionData {
+
+	constructor(friendlyfactions, enemyfactions) {
+
+		this.friendlyfactions = friendlyfactions;
+		this.enemyfactions = enemyfactions; 
+
+	}
+
+}
+
 
 //======================Actor Extensions======================
 
@@ -643,7 +888,7 @@ class Player extends Actor {
 
 	constructor(id, scene, x, y, rotation, speed, hp, weapon, dodgespeed, dodgetime, slowspeed) {
 
-		super(id, scene, "player", x, y, rotation, null, speed, hp, weapon, dodgespeed, dodgetime, slowspeed);
+		super(id, scene, "player", x, y, rotation, null, speed, hp, weapon, dodgespeed, dodgetime, slowspeed, FACT_PLAYER);
 		this.controller = new TouchController((downFrames / 60) * 1000, 0.1, this);
 		this.sprite.setCircle(8);
 		this.start = new Phaser.Math.Vector2(x, y);
@@ -682,10 +927,10 @@ class Player extends Actor {
 
 class Grunt extends Actor {
 
-	constructor(id, scene, x, y, rotation, speed, hp, weapon, dodgespeed, dodgetime, slowspeed) {
+	constructor(id, scene, x, y, rotation, speed, hp, weapon, dodgespeed, dodgetime, slowspeed, patrolpath) {
 
-		super(id, scene, "player", x, y, rotation, null, speed, hp, weapon, dodgespeed, dodgetime, slowspeed);
-		this.controller = new EnemyBrain(this);
+		super(id, scene, "player", x, y, rotation, null, speed, hp, weapon, dodgespeed, dodgetime, slowspeed, FACT_GUARD);
+		this.controller = new EnemyBrain(this, patrolpath);
 		this.sprite.setCircle(8);
 
 	}

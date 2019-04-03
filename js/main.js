@@ -19,6 +19,7 @@
 
 //DAY 16 (Mon 4): Started with a line of sight script. Hit a wall. May have to do it manually. In the meantime, I made another level and made slight tweaks to accommodate it. Adding new levels should be super easy now.
 //DAY 17 (Tue 4): Continued with trying to do a line of sight script. Redid the bullet collision system. Made a test level to accommodate the new AI I am making.
+//Day 18 (Wed 4): After getting a bit of help, my line of sight code is completely functional. Enemy AI is also completely functional.
 var div = document.getElementById("game");
 
 var config = {
@@ -163,6 +164,8 @@ function lineofSight(seer, angle, fov, range, finds, scene) {
 
 	var seen = [];
 
+	fov = fov * Phaser.Math.DEG_TO_RAD;
+
 	for (var i in finds) {
 
 		if (finds[i] == seer) {
@@ -170,30 +173,41 @@ function lineofSight(seer, angle, fov, range, finds, scene) {
 		}
 
 		if (dist(seer.position, finds[i].position) > range) {
-			console.log("Not in Range");
 			continue;
 		}
 
 		var lookVec = angleToVector(true, angle);
 		var relVec = pointtopoint(seer.position, finds[i].position, true);
 
-		if (Phaser.Math.Angle.Between(lookVec.x, lookVec.y, relVec.x, relVec.y) > fov * Phaser.Math.DEG_TO_RAD) {
-			console.log("Not in FOV");
+		var dot = new Phaser.Math.Vector2(lookVec).dot(new Phaser.Math.Vector2(relVec));
+
+		var angle = Math.acos(dot);
+
+		if (dot < fov) {
 			continue;
 		}
 
-		var rayend = { x: seer.position.x + (lookVec.x * range), y: seer.position.y + (lookVec.y * range)};
+		var rayend = { x: seer.position.x + (relVec.x * range), y: seer.position.y + (relVec.y * range) };
+		var check = scene.matter.world.localWorld.bodies.slice();
+		for (j in check) {
+			if (check[j].object.type == 'proj') {
 
-		var graphics = scene.graphics;
+				check.splice(j, 1);
 
-		graphics.beginPath();
+			}
+		}
 
-		graphics.moveTo(seer.position.x, seer.position.y);
-		graphics.lineTo(rayend.x, rayend.y);
+		var objects = Phaser.Physics.Matter.Matter.Query.ray(check, seer.position, rayend);
 
-		graphics.strokePath();
+		objects.sort(function (a, b) {
+			a = dist(seer.position, a.bodyA.position);
+			b = dist(seer.position, b.bodyA.position);
+			return a - b;
+		});
 
-		var objects = Phaser.Physics.Matter.Matter.Query.ray(scene.matter.world.localWorld.bodies, seer.position, rayend);
+		if (objects[1].bodyA.object == finds[i]) {
+			seen.push(finds[i]);
+		}
 
 	}
 
