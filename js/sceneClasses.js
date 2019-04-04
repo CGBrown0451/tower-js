@@ -58,6 +58,10 @@ class BaseScene extends Phaser.Scene {
 			this.endTime = 5;
 			this.endTimer = 0;
 			this.graphics = this.add.graphics();
+			this.colWall = this.matter.world.nextCategory();
+			this.colAct = this.matter.world.nextCategory();
+			this.colBul = this.matter.world.nextCategory();
+			this.colProp = this.matter.world.nextCategory();
 			for (var i in this.input.manager.pointers) {
 
 				var p = this.input.manager.pointers[i];
@@ -77,6 +81,9 @@ class BaseScene extends Phaser.Scene {
 			var j = this.matter.world.localWorld.bodies;
 			for (var i in this.matter.world.localWorld.bodies) {
 				j[i].object = "";
+				console.log(j[i]);
+				j[i].setCollisionCategory(colWall);
+				j[i].setCollidesWith(COL_EVERYTHING);
 			}
 
 			//Build the Navmesh.
@@ -578,7 +585,7 @@ class btTargets extends BaseScene {
 		this.bronzetime = 50;
 		this.silvertime = 40;
 		this.goldtime = 32.5;
-		this.mybesttime = 24;
+		this.mybesttime = 21.902;
 		this.shader = "Grey"
 		this.pipeline;
 	

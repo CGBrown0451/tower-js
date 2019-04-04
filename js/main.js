@@ -69,6 +69,7 @@ var time, nr;
 var acceptedSub = true;
 var vibration = true;
 console.log(navigator);
+
 //======================Universal Functions======================
 
 function screenSpacetoWorldSpace(scene, x, y) {

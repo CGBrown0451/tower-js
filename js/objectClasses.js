@@ -208,6 +208,8 @@ class Actor {
 		this.dodgetimer = 0;
 		this.slowspeed = slowspeed;
 		this.factionData = factionData;
+		this.sprite.setCollisionCategory(colAct);
+		this.sprite.setCollidesWith(COL_EVERYTHING);
 
 	}
 
@@ -429,6 +431,8 @@ class Prop{
 		if (this.data.immovable) {
 			this.sprite.setStatic(true);
 		}
+		this.sprite.setCollisionCategory(this.scene.colProp);
+		this.sprite.setCollidesWith([]);
 		
 
 	}
@@ -477,6 +481,8 @@ class Projectile{
 		this.sprite.body.frictionAir = 0.002;
 		var vel = angleToVector(false, this.sprite.rotation).scale(this.data.speed);
 		this.sprite.setVelocity(vel.x, vel.y);
+		this.sprite.setCollisionCategory(colBul);
+		this.sprite.setCollidesWith(COL_EVERYTHING);
 	}
 
 	update() {
