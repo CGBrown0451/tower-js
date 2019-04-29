@@ -797,7 +797,7 @@ class endScene extends BaseScene {
 
 		this.maintext = this.add.text(480, 270, string, { fontFamily: 'Verdana, "Times New Roman", Tahoma, serif', align: 'center' });
 		this.maintext.setOrigin(0.5);
-		new Button('link', 'https://goo.gl/forms/310WOCv371YL7mNj2', 400, 490, 'button', 'Feedback', this);
+		new Button('link', 'https://forms.gle/PKX1xUpxePbo8vhu9', 400, 490, 'button', 'Feedback', this);
 		new Button('restart', this.prevScene, 560, 490, 'button', 'Restart', this);
 		new Button('gotoOptions', '', 400, 400, 'button', 'Options', this);
 		new Button('changeScene', 'levelSelect', 560, 400, 'button', 'Level\nSelect', this);
