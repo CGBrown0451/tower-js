@@ -62,6 +62,7 @@ class BaseScene extends Phaser.Scene {
 			this.colAct = this.matter.world.nextCategory();
 			this.colBul = this.matter.world.nextCategory();
 			this.colProp = this.matter.world.nextCategory();
+			this.COL_EVERYTHING = [this.colProp, this.colBul, this.colAct, this.colWall];
 			for (var i in this.input.manager.pointers) {
 
 				var p = this.input.manager.pointers[i];
@@ -78,12 +79,10 @@ class BaseScene extends Phaser.Scene {
 			this.mainLayer = this.map.createStaticLayer('Walls', walls, 0, 0);
 			this.mainLayer.setCollisionByProperty({ collides: true });
 			this.matter.world.convertTilemapLayer(this.mainLayer);
+			console.log(this.matter);
 			var j = this.matter.world.localWorld.bodies;
 			for (var i in this.matter.world.localWorld.bodies) {
 				j[i].object = "";
-				console.log(j[i]);
-				j[i].setCollisionCategory(colWall);
-				j[i].setCollidesWith(COL_EVERYTHING);
 			}
 
 			//Build the Navmesh.

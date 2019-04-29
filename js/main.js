@@ -20,6 +20,7 @@
 //DAY 16 (Mon 4): Started with a line of sight script. Hit a wall. May have to do it manually. In the meantime, I made another level and made slight tweaks to accommodate it. Adding new levels should be super easy now.
 //DAY 17 (Tue 4): Continued with trying to do a line of sight script. Redid the bullet collision system. Made a test level to accommodate the new AI I am making.
 //Day 18 (Wed 4): After getting a bit of help, my line of sight code is completely functional. Enemy AI is also completely functional.
+//Day 19 (Thu 4): Started a collision filter. Couldn't get anything done due to stuff with friends.
 var div = document.getElementById("game");
 
 var config = {
